@@ -18,6 +18,9 @@ const config = {
       },
     },
     extend: {
+      backgroundImage: {
+        'eyepop': 'linear-gradient(to right, #1D47B3, #2986CA, #30A7D7)',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

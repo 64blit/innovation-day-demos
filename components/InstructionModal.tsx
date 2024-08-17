@@ -3,16 +3,25 @@ import {
     DialogContent,
     DialogDescription,
     DialogHeader,
-    DialogTitle,
+    DialogClose
 } from "@/components/ui/dialog";
+import { Button } from "./ui/button";
 import { useState } from "react";
+import Dots from "./Dots";
 
-interface InstructionModalProps {
-    onModalClose?: () => void;
+interface StepDescription {
+    headline: string;
+    description: string;
 }
 
-export default function InstructionModal({ onModalClose }: InstructionModalProps) {
+interface InstructionModalProps {
+    onModalClose: () => void;
+    stepDescriptions: StepDescription[];
+}
+
+const InstructionModal = ({ onModalClose, stepDescriptions }: InstructionModalProps) => {
     const [isModalOpen, setIsModalOpen] = useState(true);
+    const [step, setStep] = useState(0);
 
     const handleClose = () => {
         setIsModalOpen(false);
@@ -21,19 +30,45 @@ export default function InstructionModal({ onModalClose }: InstructionModalProps
         }
     };
 
+    const handleNextStep = () => {
+        setStep(prevStep => prevStep + 1);
+    };
 
     return (
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
-            <DialogContent className="w-[90vw] bg-white">
+            <DialogContent className="w-full h-full bg-white">
                 <DialogHeader>
-                    <DialogTitle>Instructions</DialogTitle>
-                    <DialogDescription>
-                        <p className="text-lg">
-                            You are a gig worker.<br/>Arrange bags on the table and snap a photo.
+                    <DialogDescription className="text-black">
+                        <h1 className="text-3xl font-semibold mt-16">
+                            {stepDescriptions[step].headline}
+                        </h1>
+                        <p className="text-lg my-3">
+                            {stepDescriptions[step].description}
                         </p>
+
+                        <Dots step={step} />
+
+                        {step < stepDescriptions.length - 1 && (
+                            <Button
+                                className="bg-eyepop w-full font-bold text-md h-12"
+                                onClick={handleNextStep}
+                            >
+                                Next
+                            </Button>
+                        )}
+
+                        {step === stepDescriptions.length - 1 && (
+                            <DialogClose asChild className="w-full h-12 mt-4">
+                                <Button type="button" className="bg-eyepop w-full font-bold text-md h-12">
+                                    Go To My Camera
+                                </Button>
+                            </DialogClose>
+                        )}
                     </DialogDescription>
                 </DialogHeader>
             </DialogContent>
         </Dialog>
     );
 }
+
+export default InstructionModal;

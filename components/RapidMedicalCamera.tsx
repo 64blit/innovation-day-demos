@@ -1,17 +1,25 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { BarLoader } from 'react-spinners';
+import { MoonLoader } from 'react-spinners';
+import CameraIcon from './CameraIcon';
+import { Button } from './ui/button';
+import HelpIcon from './HelpIcon';
+import FlashIcon from './FlashIcon';
 
-const Camera: React.FC = () => {
+interface RapidMedicalCameraProps {
+  goBackToInstructions: () => void;
+  goToThankYouPage: () => void;
+  desiredObject: string;
+  desiredObjectTitle: string;
+}
+
+const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions, desiredObject, desiredObjectTitle}: RapidMedicalCameraProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isCaptured, setIsCaptured] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [desiredObjectCount, setDesiredObjectCount] = useState(0);
-
-  const desiredObject = 'laptop' // change to plastic bags for Rapid Medical Demo
 
   useEffect(() => {
     const constraints = {
@@ -38,25 +46,14 @@ const Camera: React.FC = () => {
     };
   }, []);
 
-  const captureImage = () => {
+  const uploadImage = async () => {
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
         context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-        setIsCaptured(true);
       }
     }
-  };
 
-  const retakeImage = () => {
-    setIsCaptured(false);
-    setIsLoaded(false);
-    if (videoRef.current) {
-      videoRef.current.play();
-    }
-  };
-
-  const uploadImage = async () => {
     if (canvasRef.current) {
       setIsLoading(true);
       try {
@@ -95,17 +92,29 @@ const Camera: React.FC = () => {
     }
   };
 
-
   return (
     <div className="relative w-screen h-[100svh]">
       {isLoaded && (
-        <span className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-white border-4 border-black rounded-full cursor-pointer p-4">
-          {desiredObject} count: {desiredObjectCount}
-        </span>
+        <div className='absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center'>
+          <h1 className='text-4xl text-center font-bold text-white absolute top-10 left-1/2 transform -translate-x-1/2'>
+            Analysis complete
+          </h1>
+          <span className="bg-[#0B0A33] rounded-full cursor-pointer p-4 text-white">
+            {desiredObjectCount == 1 ? `${desiredObjectCount} ${desiredObjectTitle}` : `${desiredObjectCount} ${desiredObjectTitle}s`}
+          </span>
+          <Button
+            className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"
+            onClick={goToThankYouPage}
+          >
+            Next
+          </Button>
+        </div>
       )}
+
       {isLoading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white">
-          <BarLoader className="my-4" color="#34a4eb" width={200} height={10} />
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-50">
+          <MoonLoader className="my-4" color="#34a4eb" size={50}/>
+          <h1 className='text-white font-bold text-2xl mt-4'>Capturing...</h1>
         </div>
       )}
       <video
@@ -113,53 +122,38 @@ const Camera: React.FC = () => {
         autoPlay
         muted
         playsInline
-        className={`w-full h-[100svh] object-cover ${isCaptured || isLoading ? 'hidden' : ''}`}
+        className={`w-full h-[100svh] object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
       ></video>
       <canvas
         ref={canvasRef}
         width={1080}
         height={1440}
-        className={`w-full h-[100svh] object-cover ${isCaptured && !isLoading ? '' : 'hidden'}`}
+        className={`w-full h-[100svh] object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
-      {isCaptured && !isLoading && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
-          {!isLoaded ? (
-            <button
-              onClick={uploadImage}
-              className="bg-white border-4 border-black rounded-full cursor-pointer p-4"
-            >
-              Upload
-            </button>
-          ) : (
-            <a
-              href="https://eyepop.ai"
-              className="bg-white border-4 border-black rounded-full cursor-pointer p-4 text-center inline-block"
-            >
-              Learn
-            </a>
-          )}
-          <span
-            className="text-2xl text-white font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]"
-          >
-            or
-          </span>
-          <button
-            onClick={retakeImage}
-            className="bg-white border-4 border-black rounded-full cursor-pointer p-4"
-          >
-            Retake
-          </button>
-        </div>
-      )}
-      {!isCaptured && !isLoading && (
+      {!isLoading && !isLoaded && (
+        <div>
         <button
-          onClick={captureImage}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white border-4 border-black rounded-full cursor-pointer p-8"
+          onClick={goBackToInstructions}
+          className="absolute bottom-8 right-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
         >
+          <HelpIcon />
         </button>
+        <button
+          onClick={uploadImage}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
+        >
+          <CameraIcon />
+        </button>
+        <button
+          onClick={uploadImage}
+          className="absolute bottom-8 left-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
+        >
+          <FlashIcon />
+        </button>
+        </div>
       )}
     </div>
   );
 };
 
-export default Camera;
+export default RapidMedicalCamera;

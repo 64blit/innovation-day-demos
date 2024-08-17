@@ -4,6 +4,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
+  DialogClose
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -15,7 +17,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -25,10 +26,12 @@ const formSchema = z.object({
 });
 
 interface EmailFormModalProps {
-  onModalClose?: () => void;
+  onModalClose: () => void;
+  title: string;
+  description: string;
 }
 
-export default function EmailFormModal({ onModalClose }: EmailFormModalProps) {
+const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
 
   const handleClose = () => {
@@ -46,16 +49,18 @@ export default function EmailFormModal({ onModalClose }: EmailFormModalProps) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values); // implement email submission logic as needed
+    console.log(values);
     handleClose();
   }
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[90vw] bg-white">
+      <DialogContent className="w-full h-full bg-white">
         <DialogHeader>
-          <DialogTitle>Interested in EyePop?</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-black">
+            <h1 className="text-3xl mt-16 mb-3 font-semibold">Welcome to the<br/>{title} demo</h1>
+            <h1 className="text-xl my-4 font-bold">POWERED BY <a className="text-sky-700" href="https://eyepop.ai">EYEPOP.AI</a></h1>
+            <p className="text-lg my-3">{description}</p>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6 text-left">
                 <FormField
@@ -63,20 +68,28 @@ export default function EmailFormModal({ onModalClose }: EmailFormModalProps) {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="aditya@eyepop.ai" {...field} />
+                        <Input placeholder="Email" className="h-12" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Submit</Button>
+                <Button type="submit" className="w-full h-12 bg-eyepop">
+                  <p className="text-white font-bold text-md">Submit</p>
+                  </Button>
               </form>
             </Form>
+            <DialogClose asChild className="w-full h-12 mt-4">
+            <Button type="button" variant="secondary">
+              Skip
+            </Button>
+          </DialogClose>
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
     </Dialog>
   );
 }
+
+export default EmailFormModal
