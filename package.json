@@ -26,10 +26,14 @@
     "react-camera-pro": "^1.4.0",
     "react-dom": "^18",
     "react-hook-form": "^7.52.2",
+    "react-media-recorder": "^1.6.5",
     "react-spinners": "^0.14.1",
     "react-webcam": "^7.2.0",
+    "simple-peer": "^9.11.1",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "webrtc-adapter": "^9.0.1",
+    "ws": "^8.18.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

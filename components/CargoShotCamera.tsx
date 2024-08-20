@@ -10,16 +10,13 @@ import FlashIcon from './FlashIcon';
 interface CargoShotCameraProps {
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
-  desiredObject: string;
-  desiredObjectTitle: string;
 }
 
-const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions, desiredObject, desiredObjectTitle }: CargoShotCameraProps) => {
+const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCameraProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [desiredObjectCount, setDesiredObjectCount] = useState(0);
 
   useEffect(() => {
     const constraints = {
@@ -64,12 +61,10 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions, desiredObject
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: imageDataURL, desiredObject: desiredObject }),
+          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['laptop'] }), //change desired objects to ['box', 'palette'] when ready
         });
 
         const data = await response.json()
-
-        setDesiredObjectCount(data.count)
 
         const modifiedImageURL = data.modifiedImage;
         const img = new Image();

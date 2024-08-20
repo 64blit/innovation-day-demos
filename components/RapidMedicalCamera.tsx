@@ -10,11 +10,9 @@ import FlashIcon from './FlashIcon';
 interface RapidMedicalCameraProps {
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
-  desiredObject: string;
-  desiredObjectTitle: string;
 }
 
-const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions, desiredObject, desiredObjectTitle}: RapidMedicalCameraProps) => {
+const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedicalCameraProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +62,7 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions, desiredObje
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: imageDataURL, desiredObject: desiredObject }),
+          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['laptop'] }), //change desired objects to ['plastic bag'] when ready
         });
 
         const data = await response.json()
@@ -100,7 +98,7 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions, desiredObje
             Analysis complete
           </h1>
           <span className="bg-[#0B0A33] rounded-full cursor-pointer p-4 text-white">
-            {desiredObjectCount == 1 ? `${desiredObjectCount} ${desiredObjectTitle}` : `${desiredObjectCount} ${desiredObjectTitle}s`}
+            {desiredObjectCount == 1 ? `${desiredObjectCount} sample` : `${desiredObjectCount} samples`}
           </span>
           <Button
             className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"

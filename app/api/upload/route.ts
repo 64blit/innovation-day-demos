@@ -5,7 +5,7 @@ import { Render2d } from '@eyepop.ai/eyepop-render-2d';
 
 export async function POST(req: Request) {
     try {
-        const { image, desiredObject } = await req.json();
+        const { image, desiredObjects } = await req.json();
 
         const img = await loadImage(image);
         const canvas = createCanvas(img.width, img.height);
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
                     for (let object of result.objects) {
                         const { x, y, width, height, classLabel } = object;
 
-                        if (classLabel === desiredObject) {
+                        if (classLabel in desiredObjects) {
                             count += 1;
                             context.strokeStyle = 'blue';
                             context.lineWidth = 2;

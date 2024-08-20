@@ -16,6 +16,12 @@ export default function Home(){
                     CargoShot
                 </Link>
             </Button>
+
+            <Button asChild className="bg-red-500 text-white p-4 rounded-lg m-4 text-3xl h-12">
+                <Link href="/jumping-jacks">
+                    Jumping Jacks
+                </Link>
+            </Button>
         </div>
     )
 }
