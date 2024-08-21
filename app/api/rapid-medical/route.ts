@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createCanvas, loadImage } from 'canvas';
 import { Authentication, EyePop } from '@eyepop.ai/eyepop';
-import { Render2d } from '@eyepop.ai/eyepop-render-2d';
 
 export async function POST(req: Request) {
     try {
@@ -23,6 +22,7 @@ export async function POST(req: Request) {
         ).connect();
 
         let count = 0;
+        const resultsArray = [];
 
         try {
             let results = await endpoint.process({
@@ -33,22 +33,10 @@ export async function POST(req: Request) {
             for await (let result of results) {
                 if (result.objects) {
                     for (let object of result.objects) {
-                        const { x, y, width, height, classLabel } = object;
-
-                        console.log(classLabel)
-
+                        const { classLabel } = object;
                         if (classLabel === 'ziploc-bag') {
                             count += 1;
-                            context.globalAlpha = 0.3;
-                            context.strokeStyle = 'lightblue';
-                            context.lineWidth = 2;
-                            context.fillRect(x, y, width, height);
-
-                            context.globalAlpha = 1;
-
-                            context.fillStyle = 'white';
-                            context.font = '30px Arial';
-                            context.fillText('medical sample', x, y - 10);
+                            resultsArray.push(result)
                         }
                     }
                 }
@@ -57,9 +45,9 @@ export async function POST(req: Request) {
             await endpoint.disconnect();
         }
 
-        const modifiedImage = canvas.toDataURL('image/png');
+        // const modifiedImage = canvas.toDataURL('image/png');
 
-        return NextResponse.json({ modifiedImage, count }, { status: 200 });
+        return NextResponse.json({ resultsArray, count }, { status: 200 });
     } catch (error) {
         console.error('Error processing image:', error);
         return NextResponse.json({ error: 'Failed to process image' }, { status: 500 });

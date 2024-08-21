@@ -6,6 +6,7 @@ import CameraIcon from './CameraIcon';
 import { Button } from './ui/button';
 import HelpIcon from './HelpIcon';
 import FlashIcon from './FlashIcon';
+import Render2d from '@eyepop.ai/eyepop-render-2d';
 
 interface RapidMedicalCameraProps {
   goBackToInstructions: () => void;
@@ -69,17 +70,16 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
 
         setDesiredObjectCount(data.count)
 
-        const modifiedImageURL = data.modifiedImage;
-        const img = new Image();
-        img.src = modifiedImageURL;
-        img.onload = () => {
           if (canvasRef.current) {
             const context = canvasRef.current.getContext('2d');
             if (context) {
-              context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-              context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+              // @ts-ignore
+              const renderer = Render2d.renderer(context as CanvasRenderingContext2D);
+              for(let result of data.resultsArray){
+                renderer.draw(result);
+              }
+
             }
-          }
         };
       } catch (error) {
         console.error('Error uploading image:', error);
