@@ -56,7 +56,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       try {
 
         const imageDataURL = canvasRef.current.toDataURL('image/png');
-        const response = await fetch('/api/upload', {
+        const response = await fetch('/api/cargoshot', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

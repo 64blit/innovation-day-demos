@@ -57,12 +57,12 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
       try {
 
         const imageDataURL = canvasRef.current.toDataURL('image/png');
-        const response = await fetch('/api/upload', {
+        const response = await fetch('/api/rapid-medical', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['laptop'] }), //change desired objects to ['plastic bag'] when ready
+          body: JSON.stringify({ image: imageDataURL })
         });
 
         const data = await response.json()
@@ -93,12 +93,12 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
   return (
     <div className="relative w-screen h-[100svh]">
       {isLoaded && (
-        <div className='absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center'>
+        <div className='absolute inset-0 bg-black bg-opacity-20 flex flex-col items-center justify-center'>
           <h1 className='text-4xl text-center font-bold text-white absolute top-10 left-1/2 transform -translate-x-1/2'>
             Analysis complete
           </h1>
           <span className="bg-[#0B0A33] rounded-full cursor-pointer p-4 text-white">
-            {desiredObjectCount == 1 ? `${desiredObjectCount} sample` : `${desiredObjectCount} samples`}
+            {desiredObjectCount == 1 ? `${desiredObjectCount} medical sample` : `${desiredObjectCount} medical samples`}
           </span>
           <Button
             className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"

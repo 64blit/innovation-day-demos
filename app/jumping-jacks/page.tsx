@@ -23,7 +23,7 @@ export default function JumpingJacksDemo() {
                 const formData = new FormData();
                 formData.append('video', blob, 'recording.mp4');
 
-                await fetch('/api/upload/video', {
+                await fetch('/api/jumping-jacks', {
                     method: 'POST',
                     body: formData,
                 });
