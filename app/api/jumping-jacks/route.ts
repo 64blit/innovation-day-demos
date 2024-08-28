@@ -1,59 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server';
 import EyePop from '@eyepop.ai/eyepop';
-import type { PredictedKeyPoints, Prediction } from '@eyepop.ai/eyepop';
 
 export async function POST(request: NextRequest) {
-  const wristsAboveShoulder = (prediction: Prediction) => {
-    const keyPoints = prediction.keyPoints as any[];
-    let leftWrist = 0;
-    let rightWrist = 0;
-    let leftShoulder = 0;
-    let rightShoulder = 0;
-
-    for(let keyPoint of keyPoints){
-      if(keyPoint.classLabel === 'left_wrist'){
-        leftWrist = keyPoint.y;
-      } else if(keyPoint.classLabel === 'right_wrist'){
-        rightWrist = keyPoint.y;
-      } else if(keyPoint.classLabel === 'left_shoulder'){
-        leftShoulder = keyPoint.y;
-      } else if(keyPoint.classLabel === 'right_shoulder'){
-        rightShoulder = keyPoint.y;
-      }
-    }
-
-    if (leftWrist > leftShoulder && rightWrist > rightShoulder) {
-      return true;
-    } else if (leftWrist && rightWrist && leftShoulder && rightShoulder) {
-      return false;
-    } else {
-      return 'revert to previous'
-    }
-  }
-
   try {
     const formData = await request.formData();
     const video = formData.get('video') as Blob;
-    const stream = video.stream();
+    const file = new File([video], 'recording.mp4', { type: 'video/mp4' });
 
-    const endpoint = await EyePop.workerEndpoint({popId: process.env.JUMPINGJACKS_POP_ID}).connect();
+    const endpoint = await EyePop.workerEndpoint({ popId: process.env.JUMPINGJACKS_POP_ID }).connect();
     let resultsArray = [];
+    let jumpingJackTrackingArray = [];
+
+    const traceState: { [key: number]: { aboveShoulder: boolean; jumpingJackCount: number } } = {};
 
     try {
       let results = await endpoint.process({
-        stream: stream,
+        file: file,
         mimeType: 'video/*',
-      })
+      });
 
       for await (let result of results) {
-        console.log(result);
+        const { objects, seconds } = result;
+        const jumpingJackCounts: { [key: number]: number } = {};
+
+        if (!objects) {
+          break;
+        }
+
+        objects.forEach(obj => {
+          const { traceId, keyPoints } = obj;
+
+          if (traceId && keyPoints) {
+            if (!traceState[traceId]) {
+              traceState[traceId] = { aboveShoulder: false, jumpingJackCount: 0 };
+            }
+
+            const bodyPoints = keyPoints[0].points;
+
+            const leftWrist = bodyPoints.find(point => point.classLabel === 'left wrist');
+            const rightWrist = bodyPoints.find(point => point.classLabel === 'right wrist');
+            const leftShoulder = bodyPoints.find(point => point.classLabel === 'left shoulder');
+            const rightShoulder = bodyPoints.find(point => point.classLabel === 'right shoulder');
+
+            if (leftWrist && rightWrist && leftShoulder && rightShoulder) {
+              const wristsAboveShoulders =
+                leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y;
+
+              if (wristsAboveShoulders) {
+                // Increment the jumping jack count when both wrists go above the shoulders
+                if (!traceState[traceId].aboveShoulder) {
+                  traceState[traceId].jumpingJackCount += 1;
+                  traceState[traceId].aboveShoulder = true;
+                }
+              } else {
+                // Reset the aboveShoulder state when wrists are no longer above shoulders
+                traceState[traceId].aboveShoulder = false;
+              }
+
+              jumpingJackCounts[traceId] = traceState[traceId].jumpingJackCount;
+            }
+          }
+        });
+
         resultsArray.push(result);
+        console.log(result);
+        if (Object.keys(jumpingJackCounts).length > 0) {
+          jumpingJackTrackingArray.push({ seconds, jumpingJackCounts });
+        }
       }
     } finally {
       await endpoint.disconnect();
     }
 
-    return NextResponse.json({ boundingBoxes: resultsArray });
+    return NextResponse.json({ resultsArray, jumpingJackTrackingArray });
   } catch (error: any) {
     console.error('Failed to upload video:', error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });

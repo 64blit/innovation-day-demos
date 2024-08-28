@@ -6,8 +6,8 @@ import "./globals.css";
 const prompt = Prompt({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800"] });
 
 export const metadata: Metadata = {
-  title: "Rapid Medical Demo",
-  description: "Showcasing The Capabilities of Rapid Medical",
+  title: "Innovation Day Demo",
+  description: "Showcasing The Power of EyePop",
 };
 
 export default function RootLayout({
