@@ -122,66 +122,71 @@ export default function JumpingJacksDemo() {
                 const drawFrame = () => {
                     const result = getClosestPrediction(video.currentTime);
 
-                    if (result && canvas) {
-                        canvas.width = result.source_width;
-                        canvas.height = result.source_height;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    try {
+                        if (result && canvas) {
+                            canvas.width = result.source_width;
+                            canvas.height = result.source_height;
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                        if (renderer) {
-                            renderer.draw(result as any);
-                        }
+                            if (renderer) {
+                                renderer.draw(result as any);
+                            }
 
-                        if (result.objects) {
-                            result.objects.forEach(obj => {
-                                const traceId = obj.traceId;
+                            if (result.objects) {
+                                result.objects.forEach(obj => {
+                                    const traceId = obj.traceId;
 
-                                if(obj.keyPoints === undefined) return
+                                    const keyPoints = obj.keyPoints![0]?.points;
+                                    const jumpingJackCount = getClosestJumpingJackCount(traceId as number, result.seconds as number);
 
-                                const keyPoints = obj.keyPoints[0]?.points;
-                                const jumpingJackCount = getClosestJumpingJackCount(traceId as number, result.seconds as number);
+                                    if (keyPoints && jumpingJackCount !== undefined) {
+                                        const nose = keyPoints.find(point => point.classLabel === 'nose');
 
-                                if (keyPoints && jumpingJackCount !== undefined) {
-                                    const nose = keyPoints.find(point => point.classLabel === 'nose');
+                                        if (nose) {
+                                            const text = jumpingJackCount.toString();
+                                            const fontSize = 20;
+                                            ctx.font = `bold ${fontSize}px 'Press Start 2P'`;
+                                            ctx.textAlign = 'center';
 
-                                    if (nose) {
-                                        const text = jumpingJackCount.toString();
-                                        const fontSize = 20;
-                                        ctx.font = `bold ${fontSize}px 'Press Start 2P'`;
-                                        ctx.textAlign = 'center';
+                                            const textWidth = ctx.measureText(text).width;
+                                            const padding = 10;
+                                            const bubbleWidth = textWidth + padding * 4;
+                                            const bubbleHeight = fontSize + padding * 2;
 
-                                        const textWidth = ctx.measureText(text).width;
-                                        const padding = 10;
-                                        const bubbleWidth = textWidth + padding * 4;
-                                        const bubbleHeight = fontSize + padding * 2;
+                                            // Define the position
+                                            const x = nose.x;
+                                            const y = nose.y - obj.height * 0.20;
 
-                                        // Define the position
-                                        const x = nose.x;
-                                        const y = nose.y - obj.height * 0.20;
+                                            // Draw the thought bubble rectangle
+                                            ctx.fillStyle = 'white';
+                                            ctx.lineWidth = 2;
+                                            ctx.beginPath();
+                                            ctx.rect(x - bubbleWidth / 2, y - bubbleHeight - 15, bubbleWidth, bubbleHeight);
+                                            ctx.fill();
 
-                                        // Draw the thought bubble rectangle
-                                        ctx.fillStyle = 'white';
-                                        ctx.lineWidth = 2;
-                                        ctx.beginPath();
-                                        ctx.rect(x - bubbleWidth / 2, y - bubbleHeight - 15, bubbleWidth, bubbleHeight);
-                                        ctx.fill();
+                                            // Draw the triangle pointer
+                                            ctx.beginPath();
+                                            ctx.moveTo(x - 10, y - 10);
+                                            ctx.lineTo(x, y);
+                                            ctx.lineTo(x + 10, y - 10);
+                                            ctx.closePath();
+                                            ctx.fill();
 
-                                        // Draw the triangle pointer
-                                        ctx.beginPath();
-                                        ctx.moveTo(x - 10, y - 10);
-                                        ctx.lineTo(x, y);
-                                        ctx.lineTo(x + 10, y - 10);
-                                        ctx.closePath();
-                                        ctx.fill();
+                                            // Draw the text inside the bubble
+                                            ctx.fillStyle = 'blue';
+                                            ctx.fillText(text, x, y - bubbleHeight / 2 - 5);
+                                        }
 
-                                        // Draw the text inside the bubble
-                                        ctx.fillStyle = 'blue';
-                                        ctx.fillText(text, x, y - bubbleHeight / 2 - 5);
                                     }
-
-                                }
-                            });
+                                });
+                            }
+                        } else if (canvas) {
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                         }
-                    } else if (canvas) {
+                    } catch (error) {
+                        console.error(error)
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
