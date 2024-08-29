@@ -61,7 +61,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['laptop'] }), //change desired objects to ['box', 'palette'] when ready
+          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['boxes','pallet'] }),
         });
 
         const data = await response.json()

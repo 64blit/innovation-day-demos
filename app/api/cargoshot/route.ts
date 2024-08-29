@@ -14,7 +14,10 @@ export async function POST(req: Request) {
         context.drawImage(img, 0, 0);
 
         const stream = canvas.createPNGStream();
-        const endpoint = await EyePop.workerEndpoint().connect();
+        const endpoint = await EyePop.workerEndpoint({
+            popId: process.env.CARGOSHOT_POP_ID,
+            auth: { secretKey: process.env.CARGOSHOT_API_KEY as string }
+        }).connect();
 
         let count = 0;
 

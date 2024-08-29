@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
 
       for await (let result of results) {
         const { objects, seconds } = result;
+        console.log(result)
         const jumpingJackCounts: { [key: number]: number } = {};
 
         if (!objects) {
