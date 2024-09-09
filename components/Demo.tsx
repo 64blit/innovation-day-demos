@@ -51,14 +51,19 @@ export default function Demo({title, description, stepDescriptions, desiredObjec
 
   return(
     <div className="h-[100svh]">
-    <EmailFormModal onModalClose={onEmailFormModalClose} title={title} description={description}/>
-    {isInstructionModalOpen && <InstructionModal onModalClose={onInstructionModalClose} stepDescriptions={stepDescriptions}/>}
-    {title ===  "Rapid Medical" && isCameraOpen &&
-    <RapidMedicalCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage}
-    />}
-    {title === "CargoShot" && isCameraOpen &&
-    <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} />}
-    {isThankYouPageOpen && <ThankYouPage goBackToCamera={goBackToCamera} title={title}/>}
+    
+      <EmailFormModal onModalClose={onEmailFormModalClose} title={title} description={description}/>
+      {isInstructionModalOpen && <InstructionModal onModalClose={onInstructionModalClose} stepDescriptions={stepDescriptions}/>}
+      
+      {title ===  "Rapid Medical" && isCameraOpen &&
+      <RapidMedicalCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage}
+      />}
+
+      {title === "CargoShot" && isCameraOpen &&
+      <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} />}
+      
+      {isThankYouPageOpen && <ThankYouPage goBackToCamera={goBackToCamera} title={title}/>}
+    
     </div>
   )
 }
