@@ -72,6 +72,9 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
   }, []);
 
   const uploadImage = async () => {
+
+    loadEyePopModules()
+
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
@@ -84,12 +87,12 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       try {
 
         const imageDataURL = canvasRef.current.toDataURL('image/png');
-        const response = await fetch('/api/cargoshot', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        // const response = await fetch('/api/cargoshot', {
+        //   method: 'GET',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        // });
 
         const desiredObjects = [
           'boxes', 
@@ -99,13 +102,22 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
         let canvasBlob = await fetch(imageDataURL);
       
         canvasBlob = await canvasBlob.blob() as any;
+        
+        // const data = await response.json()
+        // console.log(data);
+        // const session = data.session;
 
-        const data = await response.json()
-        const session = data.session;
+        // console.log(session);
 
+        const popId = 'f2092629d3524541abf4b16369d9405a'
+        const secretKey = 'AAE_w6lCcrCa27chNAbZO-WdZ0FBQUFBQmwyUFk5bmtLZnJBQ2RFVWVDbzU1MnkwTUMzYXhQWjA4a0ZEczFKWWdONjdRS0NGWUZ5aF90aXVQZ3FrcWdkZWwwUEx6Q0luM0F3b3ItMjdqRmhUQkxyTWVvSndFLWRCUENjZGNlanZhbGhRTDdtV289'
         let count = 0;
         const endpoint = await EyePop.workerEndpoint({
-            auth: {session}
+            // auth: {session}
+            popId: popId,
+            auth: { 
+                secretKey: secretKey,
+            }
         }).connect();
     
         const context = canvasRef.current.getContext('2d');
@@ -128,6 +140,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
             context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
             for await (let result of results) {
+              console.log(result);
                 if (result.objects) {
                     for (let object of result.objects) {
                         const { x, y, width, height, classLabel } = object;
