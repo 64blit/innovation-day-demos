@@ -11,42 +11,52 @@ import { once } from 'events';
 let Render2d: any = null
 let EyePop: any = null
 
-export async function loadEyePopModules() {
-    try {
-        if (!EyePop) {
-            await import('@eyepop.ai/eyepop').then((module) => {
-                if (EyePop) return
-                EyePop = module.EyePop
-                console.log('NodeSdkContext: Loaded EyePop modules', EyePop)
-            })
-        }
-        
-        if (!Render2d) {
-            await import('@eyepop.ai/eyepop-render-2d').then((module) => {
-                if (Render2d) return
-                Render2d = module.Render2d
-                console.log('NodeSdkContext: Loaded EyePop modules', Render2d)
-            })
-        }
-    } catch (e) {
-        console.error(e)
+export async function loadEyePopModules()
+{
+  try
+  {
+    if (!EyePop)
+    {
+      await import('@eyepop.ai/eyepop').then((module) =>
+      {
+        if (EyePop) return
+        EyePop = module.EyePop
+        console.log('NodeSdkContext: Loaded EyePop modules', EyePop)
+      })
     }
+
+    if (!Render2d)
+    {
+      await import('@eyepop.ai/eyepop-render-2d').then((module) =>
+      {
+        if (Render2d) return
+        Render2d = module.Render2d
+        console.log('NodeSdkContext: Loaded EyePop modules', Render2d)
+      })
+    }
+  } catch (e)
+  {
+    console.error(e)
+  }
 }
 
 loadEyePopModules()
 
-interface CargoShotCameraProps {
+interface CargoShotCameraProps
+{
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
 }
 
-const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCameraProps) => {
+const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCameraProps) =>
+{
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [ isLoading, setIsLoading ] = useState(false);
+  const [ isLoaded, setIsLoaded ] = useState(false);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     const constraints = {
       video: {
         facingMode: 'environment',
@@ -54,127 +64,117 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
     };
 
     navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
-        if (videoRef.current) {
+      .then((stream) =>
+      {
+        if (videoRef.current)
+        {
           videoRef.current.srcObject = stream;
         }
       })
-      .catch((error) => {
+      .catch((error) =>
+      {
         console.error('Error accessing camera:', error);
       });
 
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
+    return () =>
+    {
+      if (videoRef.current && videoRef.current.srcObject)
+      {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
 
-  const uploadImage = async () => {
+  const uploadImage = async () =>
+  {
 
     loadEyePopModules()
+    if (!canvasRef.current || !videoRef.current) return
+    const context = canvasRef.current.getContext('2d');
+    if (!context) return
 
-    if (canvasRef.current && videoRef.current) {
-      const context = canvasRef.current.getContext('2d');
-      if (context) {
-        context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-      }
-    }
+    canvasRef.current.width = videoRef.current.videoWidth;
+    canvasRef.current.height = videoRef.current.videoHeight;
 
-    if (canvasRef.current) {
-      setIsLoading(true);
-      try {
+    context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
-        const imageDataURL = canvasRef.current.toDataURL('image/png');
-        // const response = await fetch('/api/cargoshot', {
-        //   method: 'GET',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        // });
+    setIsLoading(true);
+    try
+    {
 
-        const desiredObjects = [
-          'boxes', 
-          'pallet',
-          'pallete',
-        ]
-        let canvasBlob = await fetch(imageDataURL);
-      
-        canvasBlob = await canvasBlob.blob() as any;
-        
-        // const data = await response.json()
-        // console.log(data);
-        // const session = data.session;
+      const imageDataURL = canvasRef.current.toDataURL('image/png');
 
-        // console.log(session);
+      const desiredObjects = [
+        'boxes',
+        'pallet',
+        'pallete',
+      ]
+      let canvasBlob = await fetch(imageDataURL);
 
-        const popId = 'f2092629d3524541abf4b16369d9405a'
-        const secretKey = 'AAE_w6lCcrCa27chNAbZO-WdZ0FBQUFBQmwyUFk5bmtLZnJBQ2RFVWVDbzU1MnkwTUMzYXhQWjA4a0ZEczFKWWdONjdRS0NGWUZ5aF90aXVQZ3FrcWdkZWwwUEx6Q0luM0F3b3ItMjdqRmhUQkxyTWVvSndFLWRCUENjZGNlanZhbGhRTDdtV289'
-        let count = 0;
-        const endpoint = await EyePop.workerEndpoint({
-            // auth: {session}
-            popId: popId,
-            auth: { 
-                secretKey: secretKey,
-            }
-        }).connect();
-    
-        const context = canvasRef.current.getContext('2d');
-        if(!context) return
-
-        try {
-
-          let results = await endpoint.process({
-                stream: canvasBlob as unknown as ReadableStream,
-                mimeType: 'image/*',
-            });
+      canvasBlob = await canvasBlob.blob() as any;
 
 
-            const img = new Image();
-            img.src = imageDataURL;
-
-            await once(img, 'load');
-            
-            canvasRef.current.width = img.width;
-            canvasRef.current.height = img.height;
-        
-            context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-            context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
-
-            for await (let result of results) {
-              console.log(result);
-                if (result.objects) {
-                    for (let object of result.objects) {
-                        const { x, y, width, height, classLabel } = object;
-
-                        if (classLabel in desiredObjects) {
-                            count += 1;
-                            context.strokeStyle = 'blue';
-                            context.lineWidth = 2;
-                            context.strokeRect(x, y, width, height);
-
-
-                            context.fillStyle = 'blue';
-                            context.font = '30px Arial';
-                            context.fillText(classLabel, x, y - 10);
-                        }
-                    }
-                }
-            }
-        } finally {
-            await endpoint.disconnect();
+      const popId = 'f2092629d3524541abf4b16369d9405a'
+      const secretKey = 'AAE_w6lCcrCa27chNAbZO-WdZ0FBQUFBQmwyUFk5bmtLZnJBQ2RFVWVDbzU1MnkwTUMzYXhQWjA4a0ZEczFKWWdONjdRS0NGWUZ5aF90aXVQZ3FrcWdkZWwwUEx6Q0luM0F3b3ItMjdqRmhUQkxyTWVvSndFLWRCUENjZGNlanZhbGhRTDdtV289'
+      let count = 0;
+      const endpoint = await EyePop.workerEndpoint({
+        // auth: {session}
+        popId: popId,
+        auth: {
+          secretKey: secretKey,
         }
+      }).connect();
+
+      try
+      {
+
+        let results = await endpoint.process({
+          stream: canvasBlob as unknown as ReadableStream,
+          mimeType: 'image/*',
+        });
 
 
-    
-      } catch (error) {
-        console.error('Error uploading image:', error);
-      } finally {
-        setIsLoading(false);
-        setIsLoaded(true);
+        for await (let result of results)
+        {
+          console.log(result);
+          if (result.objects)
+          {
+            for (let object of result.objects)
+            {
+              const { x, y, width, height, classLabel } = object;
+
+              if (classLabel in desiredObjects)
+              {
+                count += 1;
+                context.strokeStyle = 'blue';
+                context.lineWidth = 2;
+                context.strokeRect(x, y, width, height);
+
+
+                context.fillStyle = 'blue';
+                context.font = '30px Arial';
+                context.fillText(classLabel, x, y - 10);
+              }
+            }
+          }
+        }
+      } finally
+      {
+        await endpoint.disconnect();
       }
+
+
+
+    } catch (error)
+    {
+      console.error('Error uploading image:', error);
+    } finally
+    {
+      setIsLoading(false);
+      setIsLoaded(true);
     }
+
   };
 
   return (
@@ -214,8 +214,8 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       ></canvas>
       {!isLoading && !isLoaded && (
         <div className='flex flex-col items-center'>
-            <h1 className='text-white font-bold absolute top-8 text-center text-xl p-4 drop-shadow-xl bg-black bg-opacity-50 w-[90vw] rounded-lg'>TIP<br />Center the front view of the boxes inside of the outline</h1>
-            <div className='w-[90vw] h-[40vh] border-white border-4 border-dashed absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2'/>
+          <h1 className='text-white font-bold absolute top-8 text-center text-xl p-4 drop-shadow-xl bg-black bg-opacity-50 w-[90vw] rounded-lg'>TIP<br />Center the front view of the boxes inside of the outline</h1>
+          <div className='w-[90vw] h-[40vh] border-white border-4 border-dashed absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2' />
           <button
             onClick={goBackToInstructions}
             className="absolute bottom-8 right-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
