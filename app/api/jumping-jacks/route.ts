@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import EyePop from '@eyepop.ai/eyepop';
+import EyePop from '@eyepop.ai/eyepop';
 
 export async function POST(request: NextRequest) {
   try {
