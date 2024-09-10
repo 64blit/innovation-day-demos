@@ -6,6 +6,34 @@ import CameraIcon from './CameraIcon';
 import { Button } from './ui/button';
 import HelpIcon from './HelpIcon';
 import FlashIcon from './FlashIcon';
+import { once } from 'events';
+
+let Render2d: any = null
+let EyePop: any = null
+
+export async function loadEyePopModules() {
+    try {
+        if (!EyePop) {
+            await import('@eyepop.ai/eyepop').then((module) => {
+                if (EyePop) return
+                EyePop = module.EyePop
+                console.log('NodeSdkContext: Loaded EyePop modules', EyePop)
+            })
+        }
+        
+        if (!Render2d) {
+            await import('@eyepop.ai/eyepop-render-2d').then((module) => {
+                if (Render2d) return
+                Render2d = module.Render2d
+                console.log('NodeSdkContext: Loaded EyePop modules', Render2d)
+            })
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+loadEyePopModules()
 
 interface CargoShotCameraProps {
   goBackToInstructions: () => void;
@@ -57,27 +85,73 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
 
         const imageDataURL = canvasRef.current.toDataURL('image/png');
         const response = await fetch('/api/cargoshot', {
-          method: 'POST',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['boxes','pallet'] }),
         });
 
-        const data = await response.json()
+        const desiredObjects = [
+          'boxes', 
+          'pallet',
+          'pallete',
+        ]
+        let canvasBlob = await fetch(imageDataURL);
+      
+        canvasBlob = await canvasBlob.blob() as any;
 
-        const modifiedImageURL = data.modifiedImage;
-        const img = new Image();
-        img.src = modifiedImageURL;
-        img.onload = () => {
-          if (canvasRef.current) {
-            const context = canvasRef.current.getContext('2d');
-            if (context) {
-              context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-              context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+        const data = await response.json()
+        const session = data.session;
+
+        let count = 0;
+        const endpoint = await EyePop.workerEndpoint({
+            auth: {session}
+        }).connect();
+    
+        const context = canvasRef.current.getContext('2d');
+        if(!context) return
+
+        try {
+
+          let results = await endpoint.process({
+                stream: canvasBlob as unknown as ReadableStream,
+                mimeType: 'image/*',
+            });
+
+
+            const img = new Image();
+            img.src = imageDataURL;
+
+            await once(img, 'load');
+        
+            context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+            for await (let result of results) {
+                if (result.objects) {
+                    for (let object of result.objects) {
+                        const { x, y, width, height, classLabel } = object;
+
+                        if (classLabel in desiredObjects) {
+                            count += 1;
+                            context.strokeStyle = 'blue';
+                            context.lineWidth = 2;
+                            context.strokeRect(x, y, width, height);
+
+
+                            context.fillStyle = 'blue';
+                            context.font = '30px Arial';
+                            context.fillText(classLabel, x, y - 10);
+                        }
+                    }
+                }
             }
-          }
-        };
+        } finally {
+            await endpoint.disconnect();
+        }
+
+
+    
       } catch (error) {
         console.error('Error uploading image:', error);
       } finally {

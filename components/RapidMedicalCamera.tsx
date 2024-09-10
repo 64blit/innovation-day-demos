@@ -6,7 +6,36 @@ import CameraIcon from './CameraIcon';
 import { Button } from './ui/button';
 import HelpIcon from './HelpIcon';
 import FlashIcon from './FlashIcon';
-import Render2d from '@eyepop.ai/eyepop-render-2d';
+import { once } from 'events';
+
+
+let Render2d: any = null
+let EyePop: any = null
+
+export async function loadEyePopModules() {
+    try {
+        if (!EyePop) {
+            await import('@eyepop.ai/eyepop').then((module) => {
+                if (EyePop) return
+                EyePop = module.EyePop
+                console.log('NodeSdkContext: Loaded EyePop modules', EyePop)
+            })
+        }
+        
+        if (!Render2d) {
+            await import('@eyepop.ai/eyepop-render-2d').then((module) => {
+                if (Render2d) return
+                Render2d = module.Render2d
+                console.log('NodeSdkContext: Loaded EyePop modules', Render2d)
+            })
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+loadEyePopModules()
+
 
 interface RapidMedicalCameraProps {
   goBackToInstructions: () => void;
@@ -24,6 +53,8 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
     const constraints = {
       video: {
         facingMode: 'environment',
+        width: { ideal: 1080 },
+        height: { ideal: 1440 },
       },
     };
 
@@ -46,6 +77,8 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
   }, []);
 
   const uploadImage = async () => {
+    loadEyePopModules()
+
     if (canvasRef.current && videoRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
@@ -58,24 +91,64 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
       try {
 
         const imageDataURL = canvasRef.current.toDataURL('image/png');
+      
+
+        let canvasBlob = await fetch(imageDataURL);
+        canvasBlob = await canvasBlob.blob() as any;
+
         const response = await fetch('/api/rapid-medical', {
-          method: 'POST',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: imageDataURL })
         });
 
         const data = await response.json()
 
-        setDesiredObjectCount(data.count)
+        console.log('session', data.session)
+
+        if(!data.session){
+          throw new Error('Failed to connect to EyePop')
+        }
+
+        let count = 0;
+        const resultsArray = [];
+
+        const endpoint = await EyePop.workerEndpoint({
+              auth: {session: data.session},
+              eyepopUrl: 'https://web-api.staging.eyepop.xyz'}
+        ).connect();
+        console.log(canvasBlob);
+        try {
+            let results = await endpoint.process({
+                file: canvasBlob,
+                mimeType: 'image/*',
+            });
+
+            for await (let result of results) {
+              console.log(result);
+                if (result.objects) {
+                    for (let object of result.objects) {
+                        const { classLabel } = object;
+                        if (classLabel === 'ziploc-bag') {
+                            count += 1;
+                            resultsArray.push(result)
+                        }
+                    }
+                }
+            }
+        } finally {
+            await endpoint.disconnect();
+        }
+
+        setDesiredObjectCount(count)
 
           if (canvasRef.current) {
             const context = canvasRef.current.getContext('2d');
             if (context) {
               // @ts-ignore
               const renderer = Render2d.renderer(context as CanvasRenderingContext2D);
-              for(let result of data.resultsArray){
+              for(let result of resultsArray){
                 renderer.draw(result);
               }
 
@@ -132,7 +205,7 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
         <div>
         <button
           onClick={goBackToInstructions}
-          className="absolute bottom-8 right-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
+          className="absolute top-8 left-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
         >
           <HelpIcon />
         </button>
@@ -141,12 +214,6 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
         >
           <CameraIcon />
-        </button>
-        <button
-          onClick={uploadImage}
-          className="absolute bottom-8 left-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
-        >
-          <FlashIcon />
         </button>
         </div>
       )}
