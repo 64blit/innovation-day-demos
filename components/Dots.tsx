@@ -1,3 +1,5 @@
+'use client'
+
 export default function Dots({ step }: { step: number }) {
     return (
         <div className="flex space-x-2 justify-center my-8">

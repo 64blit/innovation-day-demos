@@ -3,9 +3,10 @@
 import EmailFormModal from "@/components/EmailFormModal"
 import InstructionModal from "@/components/InstructionModal"
 import RapidMedicalCamera from "@/components/RapidMedicalCamera"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import ThankYouPage from "@/components/ThankYouPage"
 import CargoShotCamera from "./CargoShotCamera"
+import ClientOnlyProps from "./ClientOnlyProps"
 
 interface StepDescription {
     headline: string;
@@ -50,20 +51,26 @@ export default function Demo({title, description, stepDescriptions, desiredObjec
   }
 
   return(
-    <div className="h-[100svh]">
-    
-      <EmailFormModal onModalClose={onEmailFormModalClose} title={title} description={description}/>
-      {isInstructionModalOpen && <InstructionModal onModalClose={onInstructionModalClose} stepDescriptions={stepDescriptions}/>}
-      
-      {title ===  "Rapid Medical" && isCameraOpen &&
-      <RapidMedicalCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage}
-      />}
+    <ClientOnlyProps >
+      <Suspense fallback={<div>Loading...</div>}>
+        <div className="h-[100svh]">
+        
+          <EmailFormModal onModalClose={onEmailFormModalClose} title={title} description={description}/>
 
-      {title === "CargoShot" && isCameraOpen &&
-      <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} />}
-      
-      {isThankYouPageOpen && <ThankYouPage goBackToCamera={goBackToCamera} title={title}/>}
-    
-    </div>
+          {isInstructionModalOpen && 
+            <InstructionModal onModalClose={onInstructionModalClose} stepDescriptions={stepDescriptions}/>}
+          
+          {title ===  "Rapid Medical" && isCameraOpen &&
+          <RapidMedicalCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage}
+          />}
+
+          {title === "CargoShot" && isCameraOpen &&
+          <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} />}
+          
+          {isThankYouPageOpen && <ThankYouPage goBackToCamera={goBackToCamera} title={title}/>}
+        
+        </div>
+      </Suspense>
+    </ClientOnlyProps>
   )
 }

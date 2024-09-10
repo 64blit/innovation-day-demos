@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Prompt } from "next/font/google";
 import "./globals.css";
 
-
-const prompt = Prompt({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800"] });
+const prompt = Prompt({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: "Innovation Day Demo",
@@ -17,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${prompt.className} min-h-[calc(100dvh)] bg-white`}>{children}</body>
+      <body className={`${prompt.className} min-h-[calc(100dvh)] bg-white`}>
+        {children}
+      </body>
     </html>
   );
 }
