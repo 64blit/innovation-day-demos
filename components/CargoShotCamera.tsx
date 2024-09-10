@@ -135,6 +135,9 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
             img.src = imageDataURL;
 
             await once(img, 'load');
+            
+            canvasRef.current.width = img.width;
+            canvasRef.current.height = img.height;
         
             context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
             context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);

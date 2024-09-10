@@ -12,44 +12,54 @@ import { once } from 'events';
 let Render2d: any = null
 let EyePop: any = null
 
-export async function loadEyePopModules() {
-    try {
-        if (!EyePop) {
-            await import('@eyepop.ai/eyepop').then((module) => {
-                if (EyePop) return
-                EyePop = module.EyePop
-                console.log('NodeSdkContext: Loaded EyePop modules', EyePop)
-            })
-        }
-        
-        if (!Render2d) {
-            await import('@eyepop.ai/eyepop-render-2d').then((module) => {
-                if (Render2d) return
-                Render2d = module.Render2d
-                console.log('NodeSdkContext: Loaded EyePop modules', Render2d)
-            })
-        }
-    } catch (e) {
-        console.error(e)
+export async function loadEyePopModules()
+{
+  try
+  {
+    if (!EyePop)
+    {
+      await import('@eyepop.ai/eyepop').then((module) =>
+      {
+        if (EyePop) return
+        EyePop = module.EyePop
+        console.log('NodeSdkContext: Loaded EyePop modules', EyePop)
+      })
     }
+
+    if (!Render2d)
+    {
+      await import('@eyepop.ai/eyepop-render-2d').then((module) =>
+      {
+        if (Render2d) return
+        Render2d = module.Render2d
+        console.log('NodeSdkContext: Loaded EyePop modules', Render2d)
+      })
+    }
+  } catch (e)
+  {
+    console.error(e)
+  }
 }
 
 loadEyePopModules()
 
 
-interface RapidMedicalCameraProps {
+interface RapidMedicalCameraProps
+{
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
 }
 
-const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedicalCameraProps) => {
+const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMedicalCameraProps) =>
+{
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [desiredObjectCount, setDesiredObjectCount] = useState(0);
+  const [ isLoading, setIsLoading ] = useState(false);
+  const [ isLoaded, setIsLoaded ] = useState(false);
+  const [ desiredObjectCount, setDesiredObjectCount ] = useState(0);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     const constraints = {
       video: {
         facingMode: 'environment',
@@ -59,108 +69,129 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
     };
 
     navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
-        if (videoRef.current) {
+      .then((stream) =>
+      {
+        if (videoRef.current)
+        {
           videoRef.current.srcObject = stream;
         }
       })
-      .catch((error) => {
+      .catch((error) =>
+      {
         console.error('Error accessing camera:', error);
       });
 
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
+    return () =>
+    {
+      if (videoRef.current && videoRef.current.srcObject)
+      {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
 
-  const uploadImage = async () => {
+  const uploadImage = async () =>
+  {
     loadEyePopModules()
 
-    if (canvasRef.current && videoRef.current) {
-      const context = canvasRef.current.getContext('2d');
-      if (context) {
-        context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+    if (!canvasRef.current || !videoRef.current) return
+
+    const context = canvasRef.current.getContext('2d');
+
+    if (!context) return
+
+    canvasRef.current.width = videoRef.current.videoWidth;
+    canvasRef.current.height = videoRef.current.videoHeight;
+    context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+    setIsLoading(true);
+    try
+    {
+
+      const imageDataURL = canvasRef.current.toDataURL('image/png');
+
+
+      let canvasBlob = await fetch(imageDataURL);
+      canvasBlob = await canvasBlob.blob() as any;
+
+      const response = await fetch('/api/rapid-medical', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json()
+
+      console.log('session', data.session)
+
+      if (!data.session)
+      {
+        throw new Error('Failed to connect to EyePop')
       }
-    }
 
-    if (canvasRef.current) {
-      setIsLoading(true);
-      try {
+      let count = 0;
+      const resultsArray = [];
 
-        const imageDataURL = canvasRef.current.toDataURL('image/png');
-      
+      const endpoint = await EyePop.workerEndpoint({
+        auth: { session: data.session },
+        eyepopUrl: 'https://web-api.staging.eyepop.xyz'
+      }
+      ).connect();
 
-        let canvasBlob = await fetch(imageDataURL);
-        canvasBlob = await canvasBlob.blob() as any;
+      console.log(canvasBlob);
 
-        const response = await fetch('/api/rapid-medical', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      try
+      {
+        let results = await endpoint.process({
+          file: canvasBlob,
+          mimeType: 'image/*',
         });
 
-        const data = await response.json()
-
-        console.log('session', data.session)
-
-        if(!data.session){
-          throw new Error('Failed to connect to EyePop')
-        }
-
-        let count = 0;
-        const resultsArray = [];
-
-        const endpoint = await EyePop.workerEndpoint({
-              auth: {session: data.session},
-              eyepopUrl: 'https://web-api.staging.eyepop.xyz'}
-        ).connect();
-        console.log(canvasBlob);
-        try {
-            let results = await endpoint.process({
-                file: canvasBlob,
-                mimeType: 'image/*',
-            });
-
-            for await (let result of results) {
-              console.log(result);
-                if (result.objects) {
-                    for (let object of result.objects) {
-                        const { classLabel } = object;
-                        if (classLabel === 'ziploc-bag') {
-                            count += 1;
-                            resultsArray.push(result)
-                        }
-                    }
-                }
-            }
-        } finally {
-            await endpoint.disconnect();
-        }
-
-        setDesiredObjectCount(count)
-
-          if (canvasRef.current) {
-            const context = canvasRef.current.getContext('2d');
-            if (context) {
-              // @ts-ignore
-              const renderer = Render2d.renderer(context as CanvasRenderingContext2D);
-              for(let result of resultsArray){
-                renderer.draw(result);
+        for await (let result of results)
+        {
+          console.log(result);
+          if (result.objects)
+          {
+            for (let object of result.objects)
+            {
+              const { classLabel } = object;
+              if (classLabel === 'ziploc-bag')
+              {
+                count += 1;
+                resultsArray.push(result)
               }
-
             }
-        };
-      } catch (error) {
-        console.error('Error uploading image:', error);
-      } finally {
-        setIsLoading(false);
-        setIsLoaded(true);
+          }
+        }
+      } finally
+      {
+        await endpoint.disconnect();
       }
+
+      setDesiredObjectCount(count)
+
+
+      if (context)
+      {
+        // @ts-ignore
+        const renderer = Render2d.renderer(context as CanvasRenderingContext2D);
+        for (let result of resultsArray)
+        {
+          renderer.draw(result);
+        }
+
+      };
+    } catch (error)
+    {
+      console.error('Error uploading image:', error);
+    } finally
+    {
+      setIsLoading(false);
+      setIsLoaded(true);
     }
+
   };
 
   return (
@@ -184,7 +215,7 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
 
       {isLoading && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-50">
-          <MoonLoader className="my-4" color="#34a4eb" size={50}/>
+          <MoonLoader className="my-4" color="#34a4eb" size={50} />
           <h1 className='text-white font-bold text-2xl mt-4'>Capturing...</h1>
         </div>
       )}
@@ -193,28 +224,28 @@ const RapidMedicalCamera = ({goToThankYouPage, goBackToInstructions}: RapidMedic
         autoPlay
         muted
         playsInline
-        className={`w-full h-[100svh] object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
+        className={`w-screen h-screen object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
       ></video>
       <canvas
         ref={canvasRef}
         width={1080}
         height={1440}
-        className={`w-full h-[100svh] object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
+        className={`w-screen h-screen object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
       {!isLoading && !isLoaded && (
         <div>
-        <button
-          onClick={goBackToInstructions}
-          className="absolute top-8 left-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
-        >
-          <HelpIcon />
-        </button>
-        <button
-          onClick={uploadImage}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
-        >
-          <CameraIcon />
-        </button>
+          <button
+            onClick={goBackToInstructions}
+            className="absolute top-8 left-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
+          >
+            <HelpIcon />
+          </button>
+          <button
+            onClick={uploadImage}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
+          >
+            <CameraIcon />
+          </button>
         </div>
       )}
     </div>
