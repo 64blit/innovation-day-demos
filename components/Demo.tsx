@@ -3,7 +3,7 @@
 import EmailFormModal from "@/components/EmailFormModal"
 import InstructionModal from "@/components/InstructionModal"
 import RapidMedicalCamera from "@/components/RapidMedicalCamera"
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import ThankYouPage from "@/components/ThankYouPage"
 import CargoShotCamera from "./CargoShotCamera"
 import ClientOnlyProps from "./ClientOnlyProps"
@@ -49,6 +49,12 @@ export default function Demo({title, description, stepDescriptions, desiredObjec
     setIsThankYouPageOpen(false);
     setIsCameraOpen(true);
   }
+
+  useEffect(() => {
+
+    if(screen && screen.orientation && (screen.orientation as any)?.lock) (screen.orientation as any)?.lock();
+    
+  }, [])
 
   return(
     <ClientOnlyProps >

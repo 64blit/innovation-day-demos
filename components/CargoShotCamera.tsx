@@ -55,13 +55,17 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
   const [ isLoading, setIsLoading ] = useState(false);
   const [ isLoaded, setIsLoaded ] = useState(false);
 
+
   useEffect(() =>
   {
     const constraints = {
       video: {
-        facingMode: 'environment',
+      facingMode: 'environment',
+      width: { ideal: 3840 },
+      height: { ideal: 2160 },
       },
     };
+
 
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) =>
@@ -69,6 +73,17 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
         if (videoRef.current)
         {
           videoRef.current.srcObject = stream;
+          // set the video resolution to match the stream
+          
+          videoRef.current.onloadedmetadata = () =>
+          {
+            if (videoRef.current)
+            {
+              videoRef.current.width = videoRef.current.videoWidth;
+              videoRef.current.height = videoRef.current.videoHeight;
+            }
+          };
+
         }
       })
       .catch((error) =>
@@ -85,7 +100,6 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       }
     };
   }, []);
-
   const uploadImage = async () =>
   {
 

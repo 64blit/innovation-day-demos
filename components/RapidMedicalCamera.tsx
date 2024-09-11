@@ -62,11 +62,12 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
   {
     const constraints = {
       video: {
-        facingMode: 'environment',
-        width: { ideal: 1080 },
-        height: { ideal: 1440 },
+      facingMode: 'environment',
+      width: { ideal: 3840 },
+      height: { ideal: 2160 },
       },
     };
+
 
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) =>
@@ -74,6 +75,17 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
         if (videoRef.current)
         {
           videoRef.current.srcObject = stream;
+          // set the video resolution to match the stream
+          
+          videoRef.current.onloadedmetadata = () =>
+          {
+            if (videoRef.current)
+            {
+              videoRef.current.width = videoRef.current.videoWidth;
+              videoRef.current.height = videoRef.current.videoHeight;
+            }
+          };
+
         }
       })
       .catch((error) =>
@@ -106,34 +118,18 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
     context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
     setIsLoading(true);
+
     try
     {
 
       const imageDataURL = canvasRef.current.toDataURL('image/png');
 
-
       let canvasBlob = await fetch(imageDataURL);
       canvasBlob = await canvasBlob.blob() as any;
-
-      // const response = await fetch('/api/rapid-medical', {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      // });
-
-      // const data = await response.json()
 
       const RAPID_MEDICAL_POP_ID='65a2e14afb3d4636a1d1d1e5c29d2bda'
       const RAPID_MEDICAL_API_KEY='AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
       const RAPID_MEDICAL_API_URL='https://web-api.staging.eyepop.xyz'
-
-      // console.log('session', data.session)
-
-      // if (!data.session)
-      // {
-      //   throw new Error('Failed to connect to EyePop')
-      // }
 
       let count = 0;
       const resultsArray = [];
@@ -236,8 +232,6 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
       ></video>
       <canvas
         ref={canvasRef}
-        width={1080}
-        height={1440}
         className={`w-screen h-screen object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
       {!isLoading && !isLoaded && (
