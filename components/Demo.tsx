@@ -50,12 +50,6 @@ export default function Demo({title, description, stepDescriptions, desiredObjec
     setIsCameraOpen(true);
   }
 
-  useEffect(() => {
-
-    if(screen && screen.orientation && (screen.orientation as any)?.lock) (screen.orientation as any)?.lock();
-    
-  }, [])
-
   return(
     <ClientOnlyProps >
       <Suspense fallback={<div>Loading...</div>}>
