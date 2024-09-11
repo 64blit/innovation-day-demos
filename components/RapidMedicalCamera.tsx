@@ -160,10 +160,10 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
           {
             for (let object of result.objects)
             {
-              const { classLabel } = object;
-              if (classLabel === 'ziploc-bag')
+              if (object.classLabel === 'ziploc-bag')
               {
                 count += 1;
+                object.classLabel = 'sample'
                 resultsArray.push(result)
               }
             }
