@@ -115,28 +115,36 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
       let canvasBlob = await fetch(imageDataURL);
       canvasBlob = await canvasBlob.blob() as any;
 
-      const response = await fetch('/api/rapid-medical', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // const response = await fetch('/api/rapid-medical', {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
 
-      const data = await response.json()
+      // const data = await response.json()
 
-      console.log('session', data.session)
+      const RAPID_MEDICAL_POP_ID='65a2e14afb3d4636a1d1d1e5c29d2bda'
+      const RAPID_MEDICAL_API_KEY='AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
+      const RAPID_MEDICAL_API_URL='https://web-api.staging.eyepop.xyz'
 
-      if (!data.session)
-      {
-        throw new Error('Failed to connect to EyePop')
-      }
+      // console.log('session', data.session)
+
+      // if (!data.session)
+      // {
+      //   throw new Error('Failed to connect to EyePop')
+      // }
 
       let count = 0;
       const resultsArray = [];
 
       const endpoint = await EyePop.workerEndpoint({
-        auth: { session: data.session },
-        eyepopUrl: 'https://web-api.staging.eyepop.xyz'
+        // auth: { session: data.session },
+        popId: RAPID_MEDICAL_POP_ID,
+        auth: {
+          secretKey: RAPID_MEDICAL_API_KEY,
+        },
+        eyepopUrl: RAPID_MEDICAL_API_URL
       }
       ).connect();
 
