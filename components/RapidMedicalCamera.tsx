@@ -109,12 +109,17 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
 
     if (!canvasRef.current || !videoRef.current) return
 
+    canvasRef.current.width = videoRef.current.videoWidth;
+    canvasRef.current.height = videoRef.current.videoHeight;
+
+    // Set the canvas CSS size to match the video dimensions
+    // canvasRef.current.style.width = videoRef.current.videoWidth + 'px';
+    // canvasRef.current.style.height = videoRef.current.videoHeight + 'px';
+
     const context = canvasRef.current.getContext('2d');
 
     if (!context) return
 
-    canvasRef.current.width = videoRef.current.videoWidth;
-    canvasRef.current.height = videoRef.current.videoHeight;
     console.log(canvasRef.current.width, canvasRef.current.height);
     context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
@@ -154,12 +159,17 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           mimeType: 'image/*',
         });
 
-        const style = {
-          font: '30px Arial',
-        }
-        context.font = style.font;
+        //change the context to render 
+
 
         const renderer = Render2d.renderer(context as CanvasRenderingContext2D)
+        renderer.style.cornerPadding = .015
+        renderer.style.cornerWidth = .2
+        renderer.style.lineWidth = 1
+        renderer.style.font = 'bold 10rem Arial'
+        context.font = 'bold 10rem Arial'
+
+        console.log(renderer.style);
 
         for await (let result of results)
         {
@@ -260,13 +270,11 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
         autoPlay
         muted
         playsInline
-        className={`w-screen h-screen object-scale-down ${isLoading || isLoaded ? 'hidden' : ''}`}
+        className={`w-screen h-screen object-contain ${isLoading || isLoaded ? 'hidden' : ''}`}
       ></video>
       <canvas
-        width={1920}
-        height={1080}
         ref={canvasRef}
-        className={`w-screen h-screen object-scale-down ${isLoaded || isLoading ? '' : 'hidden'}`}
+        className={`w-screen h-screen object-contain ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
       {!isLoading && !isLoaded && (
         <div>
