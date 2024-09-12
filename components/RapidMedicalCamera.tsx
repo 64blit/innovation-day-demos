@@ -162,12 +162,12 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
         //change the context to render 
 
 
+        context.font = 'bold 10rem Arial'
         const renderer = Render2d.renderer(context as CanvasRenderingContext2D)
         renderer.style.cornerPadding = .015
         renderer.style.cornerWidth = .2
         renderer.style.lineWidth = 1
-        renderer.style.font = 'bold 10rem Arial'
-        context.font = 'bold 10rem Arial'
+        renderer.style.font = 'bold 100rem Arial'
 
         console.log(renderer.style);
 
@@ -212,7 +212,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
   };
 
   return (
-    <div className="relative w-screen h-[100svh] ">
+    <div className="relative w-screen h-full overflow-hidden ">
       {isLoaded && (
         <div className='absolute inset-0 bg-black bg-opacity-20 flex flex-col items-center justify-center '>
           <div className="bg-black blur-3xl opacity-90 -z-30 w-full h-full absolute top-0 left-0"></div>
@@ -273,7 +273,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           autoPlay
           muted
           playsInline
-          className={`max-w-full max-h-full object-contain ${isLoading || isLoaded ? 'hidden' : ''}`}
+          className={`object-contain ${isLoading || isLoaded ? 'hidden' : ''}`}
         ></video>
         <canvas
           ref={canvasRef}
