@@ -1,6 +1,7 @@
 'use client';
 
-import {
+import
+{
   Dialog,
   DialogContent,
   DialogDescription,
@@ -14,7 +15,8 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
+import
+{
   Form,
   FormControl,
   FormField,
@@ -27,18 +29,22 @@ const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
 });
 
-interface EmailFormModalProps {
+interface EmailFormModalProps
+{
   onModalClose: () => void;
   title: string;
   description: string;
 }
 
-const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProps) =>
+{
+  const [ isModalOpen, setIsModalOpen ] = useState(true);
 
-  const handleClose = () => {
+  const handleClose = () =>
+  {
     setIsModalOpen(false);
-    if (onModalClose) {
+    if (onModalClose)
+    {
       onModalClose();
     }
   };
@@ -50,17 +56,18 @@ const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProp
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>)
+  {
     console.log(values);
     handleClose();
   }
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full h-full bg-white">
+      <DialogContent className="w-full h-full bg-black flex flex-col justify-center">
         <DialogHeader>
-          <DialogDescription className="text-black">
-            <h1 className="text-3xl mt-16 mb-3 font-semibold">Welcome to the<br/>{title} demo</h1>
+          <DialogDescription className="text-white flex flex-col gap-1">
+            <h1 className="text-3xl mb-3 font-semibold">Welcome to the<br />{title} demo</h1>
             <h1 className="text-xl my-4 font-bold">POWERED BY <a className="text-sky-700" href="https://eyepop.ai">EYEPOP.AI</a></h1>
             <p className="text-lg my-3">{description}</p>
             <Form {...form}>
@@ -77,16 +84,16 @@ const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProp
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full h-12 bg-eyepop">
+                <Button type="submit" className="w-full h-12 bg-eyepop outline outline-1 outline-white">
                   <p className="text-white font-bold text-md">Submit</p>
-                  </Button>
+                </Button>
               </form>
             </Form>
             <DialogClose asChild className="w-full h-12 mt-4">
-            <Button type="button" variant="secondary">
-              Skip
-            </Button>
-          </DialogClose>
+              <Button type="button" variant="secondary" className="bg-transparent text-white">
+                Skip
+              </Button>
+            </DialogClose>
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

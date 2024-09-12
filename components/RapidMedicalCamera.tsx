@@ -48,23 +48,24 @@ interface RapidMedicalCameraProps
 {
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
+  gotToFailPage: () => void;
 }
 
-const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMedicalCameraProps) =>
+const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailPage }: RapidMedicalCameraProps) =>
 {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ isLoading, setIsLoading ] = useState(false);
   const [ isLoaded, setIsLoaded ] = useState(false);
-  const [ desiredObjectCount, setDesiredObjectCount ] = useState(0);
+  const [ desiredObjectCount, setDesiredObjectCount ] = useState<number | null>(null);
 
   useEffect(() =>
   {
     const constraints = {
       video: {
-      facingMode: 'environment',
-      width: { ideal: 3840 },
-      height: { ideal: 2160 },
+        facingMode: 'environment',
+        width: { ideal: 3840 },
+        height: { ideal: 2160 },
       },
     };
 
@@ -76,7 +77,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
         {
           videoRef.current.srcObject = stream;
           // set the video resolution to match the stream
-          
+
           videoRef.current.onloadedmetadata = () =>
           {
             if (videoRef.current)
@@ -105,6 +106,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
 
   const uploadImage = async () =>
   {
+    setDesiredObjectCount(null)
     loadEyePopModules()
 
     if (!canvasRef.current || !videoRef.current) return
@@ -127,9 +129,9 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
       let canvasBlob = await fetch(imageDataURL);
       canvasBlob = await canvasBlob.blob() as any;
 
-      const RAPID_MEDICAL_POP_ID='65a2e14afb3d4636a1d1d1e5c29d2bda'
-      const RAPID_MEDICAL_API_KEY='AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
-      const RAPID_MEDICAL_API_URL='https://web-api.staging.eyepop.xyz'
+      const RAPID_MEDICAL_POP_ID = '65a2e14afb3d4636a1d1d1e5c29d2bda'
+      const RAPID_MEDICAL_API_KEY = 'AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
+      const RAPID_MEDICAL_API_URL = 'https://web-api.staging.eyepop.xyz'
 
       let count = 0;
       const resultsArray = [];
@@ -199,21 +201,52 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions }: RapidMed
   };
 
   return (
-    <div className="relative w-screen h-[100svh]">
+    <div className="relative w-screen h-[100svh] ">
       {isLoaded && (
-        <div className='absolute inset-0 bg-black bg-opacity-20 flex flex-col items-center justify-center'>
+        <div className='absolute inset-0 bg-black bg-opacity-20 flex flex-col items-center justify-center '>
+          <div className="bg-black blur-3xl opacity-90 -z-30 w-full h-full absolute top-0 left-0"></div>
+
           <h1 className='text-4xl text-center font-bold text-white absolute top-10 left-1/2 transform -translate-x-1/2'>
             Analysis complete
           </h1>
-          <span className="bg-[#0B0A33] rounded-full cursor-pointer p-4 text-white">
-            {desiredObjectCount == 1 ? `${desiredObjectCount} medical sample` : `${desiredObjectCount} medical samples`}
-          </span>
-          <Button
-            className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"
-            onClick={goToThankYouPage}
-          >
-            Next
-          </Button>
+
+
+          {desiredObjectCount && desiredObjectCount > 0 ? (
+            <>
+              <span className="bg-[#0B0A33] rounded-full cursor-pointer p-2 text-white">
+                {desiredObjectCount === 1 ? `${desiredObjectCount} medical sample` : `${desiredObjectCount} medical samples`}
+              </span>
+              <Button
+                className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"
+                onClick={goToThankYouPage}
+              >
+                Next
+              </Button>
+            </>
+          ) : (
+            <>
+              <span className="bg-[#0B0A33] rounded-full cursor-pointer p-2 text-white border-red-600 border flex justify-center text-center align-middle items-center">
+                <span className="text-lg mr-3 ml-2">✕</span>
+                <span className='w-full mr-s2'>
+                  No Medical Samples
+                </span>
+              </span>
+
+              <Button
+                className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"
+                onClick={() =>
+                {
+                  gotToFailPage()
+                  setIsLoaded(false)
+                }}
+              >
+                Next
+              </Button>
+            </>
+          )}
+
+
+
         </div>
       )}
 
