@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import HelpIcon from './HelpIcon';
 import FlashIcon from './FlashIcon';
 import { once } from 'events';
+import { Renderer, Renderer2d } from '@eyepop.ai/eyepop-render-2d';
 
 
 let Render2d: any = null
@@ -117,6 +118,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
 
     canvasRef.current.width = videoRef.current.videoWidth;
     canvasRef.current.height = videoRef.current.videoHeight;
+    console.log(canvasRef.current.width, canvasRef.current.height);
     context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
     setIsLoading(true);
@@ -182,7 +184,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
       if (context)
       {
         // @ts-ignore
-        const renderer = Render2d.renderer(context as CanvasRenderingContext2D);
+        const renderer = Render2d.renderer(context as CanvasRenderingContext2D)
         for (let result of resultsArray)
         {
           renderer.draw(result);
@@ -261,11 +263,13 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
         autoPlay
         muted
         playsInline
-        className={`w-screen h-screen object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
+        className={`w-screen h-screen object-scale-down ${isLoading || isLoaded ? 'hidden' : ''}`}
       ></video>
       <canvas
+        width={1920}
+        height={1080}
         ref={canvasRef}
-        className={`w-screen h-screen object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
+        className={`w-screen h-screen object-scale-down ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
       {!isLoading && !isLoaded && (
         <div>
