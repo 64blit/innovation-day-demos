@@ -273,11 +273,11 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           autoPlay
           muted
           playsInline
-          className={`object-contain ${isLoading || isLoaded ? 'hidden' : ''}`}
+          className={`object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
         ></video>
         <canvas
           ref={canvasRef}
-          className={`max-w-full max-h-full object-contain ${isLoaded || isLoading ? '' : 'hidden'}`}
+          className={`max-w-full max-h-full object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
         ></canvas>
       </div>
       {!isLoading && !isLoaded && (
