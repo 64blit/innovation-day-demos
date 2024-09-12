@@ -5,9 +5,6 @@ import { MoonLoader } from 'react-spinners';
 import CameraIcon from './CameraIcon';
 import { Button } from './ui/button';
 import HelpIcon from './HelpIcon';
-import FlashIcon from './FlashIcon';
-import { once } from 'events';
-import { Renderer, Renderer2d } from '@eyepop.ai/eyepop-render-2d';
 
 
 let Render2d: any = null
@@ -157,6 +154,13 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           mimeType: 'image/*',
         });
 
+        const style = {
+          font: '30px Arial',
+        }
+        context.font = style.font;
+
+        const renderer = Render2d.renderer(context as CanvasRenderingContext2D)
+
         for await (let result of results)
         {
           console.log(result);
@@ -169,8 +173,11 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
                 count += 1;
                 object.classLabel = 'sample'
                 resultsArray.push(result)
+
               }
             }
+
+            renderer.draw(result);
           }
         }
       } finally
@@ -181,16 +188,6 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
       setDesiredObjectCount(count)
 
 
-      if (context)
-      {
-        // @ts-ignore
-        const renderer = Render2d.renderer(context as CanvasRenderingContext2D)
-        for (let result of resultsArray)
-        {
-          renderer.draw(result);
-        }
-
-      };
     } catch (error)
     {
       console.error('Error uploading image:', error);
