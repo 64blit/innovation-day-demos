@@ -113,8 +113,8 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
     canvasRef.current.height = videoRef.current.videoHeight;
 
     // Set the canvas CSS size to match the video dimensions
-    // canvasRef.current.style.width = videoRef.current.videoWidth + 'px';
-    // canvasRef.current.style.height = videoRef.current.videoHeight + 'px';
+    canvasRef.current.style.width = videoRef.current.videoWidth + 'px';
+    canvasRef.current.style.height = videoRef.current.videoHeight + 'px';
 
     const context = canvasRef.current.getContext('2d');
 
@@ -267,17 +267,19 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           <h1 className='text-white font-bold text-2xl mt-4'>Capturing...</h1>
         </div>
       )}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        className={`w-screen h-screen object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
-      ></video>
-      <canvas
-        ref={canvasRef}
-        className={`w-screen h-screen object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
-      ></canvas>
+      <div className="relative w-screen h-screen flex items-center justify-center overflow-hidden -z-10">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          className={`max-w-full max-h-full object-contain ${isLoading || isLoaded ? 'hidden' : ''}`}
+        ></video>
+        <canvas
+          ref={canvasRef}
+          className={`max-w-full max-h-full object-contain ${isLoaded || isLoading ? '' : 'hidden'}`}
+        ></canvas>
+      </div>
       {!isLoading && !isLoaded && (
         <div>
           <button
