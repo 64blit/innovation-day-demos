@@ -197,6 +197,8 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
 
       setDesiredObjectCount(count)
 
+      console.log(canvasRef.current);
+
 
     } catch (error)
     {
@@ -270,11 +272,11 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
         autoPlay
         muted
         playsInline
-        className={`w-screen h-screen object-contain ${isLoading || isLoaded ? 'hidden' : ''}`}
+        className={`w-screen h-screen object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
       ></video>
       <canvas
         ref={canvasRef}
-        className={`w-screen h-screen object-contain ${isLoaded || isLoading ? '' : 'hidden'}`}
+        className={`w-screen h-screen object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
       {!isLoading && !isLoaded && (
         <div>
