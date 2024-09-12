@@ -78,7 +78,7 @@ const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProp
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Email" className="h-12" {...field} />
+                        <Input placeholder="Email" className="h-12 text-black" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
