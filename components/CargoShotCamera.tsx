@@ -8,18 +8,21 @@ import HelpIcon from './ui/HelpIcon';
 import FlashIcon from './ui/FlashIcon';
 import EyePop from '@eyepop.ai/eyepop';
 
-interface CargoShotCameraProps {
+interface CargoShotCameraProps
+{
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
 }
 
-const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCameraProps) => {
+const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCameraProps) =>
+{
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [ isLoading, setIsLoading ] = useState(false);
+  const [ isLoaded, setIsLoaded ] = useState(false);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     const constraints = {
       video: {
         facingMode: 'environment',
@@ -27,86 +30,108 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
     };
 
     navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
-        if (videoRef.current) {
+      .then((stream) =>
+      {
+        if (videoRef.current)
+        {
           videoRef.current.srcObject = stream;
         }
       })
-      .catch((error) => {
+      .catch((error) =>
+      {
         console.error('Error accessing camera:', error);
       });
 
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
+    return () =>
+    {
+      if (videoRef.current && videoRef.current.srcObject)
+      {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
 
-  const uploadImage = async () => {
-    if (canvasRef.current && videoRef.current) {
+  const uploadImage = async () =>
+  {
+    if (canvasRef.current && videoRef.current)
+    {
       const context = canvasRef.current.getContext('2d');
-      if (context) {
+      if (context)
+      {
         context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
       }
     }
 
-    if (canvasRef.current) {
+    if (canvasRef.current)
+    {
       setIsLoading(true);
-      try {
+      try
+      {
+        const CARGOSHOT_POP_ID = 'your_pop_id';
+        const CARGOSHOT_API_KEY = 'AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
 
-        
         const endpoint = await EyePop.workerEndpoint({
-            popId: process.env.CARGOSHOT_POP_ID,
-            auth: { secretKey: process.env.CARGOSHOT_API_KEY as string }
+          popId: CARGOSHOT_POP_ID,
+          auth: { secretKey: CARGOSHOT_API_KEY as string }
         }).connect();
 
         let count = 0;
 
-        try {
-            let results = await endpoint.process({
-                stream: stream as unknown as ReadableStream,
-                mimeType: 'image/*',
-            });
+        try
+        {
+          let results = await endpoint.process({
+            stream: stream as unknown as ReadableStream,
+            mimeType: 'image/*',
+          });
 
-            for await (let result of results) {
-                if (result.objects) {
-                    for (let object of result.objects) {
-                        const { x, y, width, height, classLabel } = object;
+          for await (let result of results)
+          {
+            if (result.objects)
+            {
+              for (let object of result.objects)
+              {
+                const { x, y, width, height, classLabel } = object;
 
-                        if (classLabel in desiredObjects) {
-                            count += 1;
-                            context.strokeStyle = 'blue';
-                            context.lineWidth = 2;
-                            context.strokeRect(x, y, width, height);
+                if (classLabel in desiredObjects)
+                {
+                  count += 1;
+                  context.strokeStyle = 'blue';
+                  context.lineWidth = 2;
+                  context.strokeRect(x, y, width, height);
 
 
-                            context.fillStyle = 'blue';
-                            context.font = '30px Arial';
-                            context.fillText(classLabel, x, y - 10);
-                        }
-                    }
+                  context.fillStyle = 'blue';
+                  context.font = '30px Arial';
+                  context.fillText(classLabel, x, y - 10);
                 }
+              }
             }
-        } finally {
-            await endpoint.disconnect();
+          }
+        } finally
+        {
+          await endpoint.disconnect();
         }
-    
+
         const img = new Image()
         img.src = modifiedImageURL
-        img.onload = () => {
-          if (canvasRef.current) {
+        img.onload = () =>
+        {
+          if (canvasRef.current)
+          {
             const context = canvasRef.current.getContext('2d')
-            if (context) {
+            if (context)
+            {
               context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
               context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height)
             }
           }
         };
-      } catch (error) {
+      } catch (error)
+      {
         console.error('Error uploading image:', error);
-      } finally {
+      } finally
+      {
         setIsLoading(false);
         setIsLoaded(true);
       }
@@ -150,8 +175,8 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       ></canvas>
       {!isLoading && !isLoaded && (
         <div className='flex flex-col items-center'>
-            <h1 className='text-white font-bold absolute top-8 text-center text-xl p-4 drop-shadow-xl bg-black bg-opacity-50 w-[90vw] rounded-lg'>TIP<br />Center the front view of the boxes inside of the outline</h1>
-            <div className='w-[90vw] h-[40vh] border-white border-4 border-dashed absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2'/>
+          <h1 className='text-white font-bold absolute top-8 text-center text-xl p-4 drop-shadow-xl bg-black bg-opacity-50 w-[90vw] rounded-lg'>TIP<br />Center the front view of the boxes inside of the outline</h1>
+          <div className='w-[90vw] h-[40vh] border-white border-4 border-dashed absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2' />
           <button
             onClick={goBackToInstructions}
             className="absolute bottom-8 right-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
@@ -164,7 +189,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
           >
             <CameraIcon />
           </button>
-        
+
         </div>
       )}
     </div>
