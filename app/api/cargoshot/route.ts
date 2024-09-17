@@ -1,60 +1,32 @@
 import { NextResponse } from 'next/server';
-import { createCanvas, loadImage } from 'canvas';
 import { EyePop } from '@eyepop.ai/eyepop';
-import { Render2d } from '@eyepop.ai/eyepop-render-2d';
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
     try {
-        const { image, desiredObjects } = await req.json();
+        const popId = 'f2092629d3524541abf4b16369d9405a'
+        const secretKey = 'AAE_w6lCcrCa27chNAbZO-WdZ0FBQUFBQmwyUFk5bmtLZnJBQ2RFVWVDbzU1MnkwTUMzYXhQWjA4a0ZEczFKWWdONjdRS0NGWUZ5aF90aXVQZ3FrcWdkZWwwUEx6Q0luM0F3b3ItMjdqRmhUQkxyTWVvSndFLWRCUENjZGNlanZhbGhRTDdtV289'
 
-        const img = await loadImage(image);
-        const canvas = createCanvas(img.width, img.height);
-        const context = canvas.getContext('2d');
+        console.log('1', popId, secretKey);
+        const endpoint = EyePop.workerEndpoint({
+            popId: popId,
+            auth: { 
+                secretKey: secretKey,
+             }
+        })
 
-        context.drawImage(img, 0, 0);
+        console.log('2');
+        
+        await endpoint.connect();
 
-        const stream = canvas.createPNGStream();
-        const endpoint = await EyePop.workerEndpoint({
-            popId: process.env.CARGOSHOT_POP_ID,
-            auth: { secretKey: process.env.CARGOSHOT_API_KEY as string }
-        }).connect();
+        console.log('3');
 
-        let count = 0;
+        const session = await endpoint.session();
 
-        try {
-            let results = await endpoint.process({
-                stream: stream as unknown as ReadableStream,
-                mimeType: 'image/*',
-            });
+        console.log('4', session);
 
-            for await (let result of results) {
-                if (result.objects) {
-                    for (let object of result.objects) {
-                        const { x, y, width, height, classLabel } = object;
-
-                        if (classLabel in desiredObjects) {
-                            count += 1;
-                            context.strokeStyle = 'blue';
-                            context.lineWidth = 2;
-                            context.strokeRect(x, y, width, height);
-
-
-                            context.fillStyle = 'blue';
-                            context.font = '30px Arial';
-                            context.fillText(classLabel, x, y - 10);
-                        }
-                    }
-                }
-            }
-        } finally {
-            await endpoint.disconnect();
-        }
-
-        const modifiedImage = canvas.toDataURL('image/png');
-
-        return NextResponse.json({ modifiedImage, count }, { status: 200 });
+        return NextResponse.json({ session }, { status: 200 });
     } catch (error) {
-        console.error('Error processing image:', error);
-        return NextResponse.json({ error: 'Failed to process image' }, { status: 500 });
+        console.error('Error processing session:', error);
+        return NextResponse.json({ error: 'Failed to process session' + error }, { status: 500 });
     }
 }

@@ -6,6 +6,7 @@ import CameraIcon from './ui/CameraIcon';
 import { Button } from './ui/button';
 import HelpIcon from './ui/HelpIcon';
 import FlashIcon from './ui/FlashIcon';
+import EyePop from '@eyepop.ai/eyepop';
 
 interface CargoShotCameraProps {
   goBackToInstructions: () => void;
@@ -55,6 +56,42 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       setIsLoading(true);
       try {
 
+        
+        const endpoint = await EyePop.workerEndpoint({
+            popId: process.env.CARGOSHOT_POP_ID,
+            auth: { secretKey: process.env.CARGOSHOT_API_KEY as string }
+        }).connect();
+
+        let count = 0;
+
+        try {
+            let results = await endpoint.process({
+                stream: stream as unknown as ReadableStream,
+                mimeType: 'image/*',
+            });
+
+            for await (let result of results) {
+                if (result.objects) {
+                    for (let object of result.objects) {
+                        const { x, y, width, height, classLabel } = object;
+
+                        if (classLabel in desiredObjects) {
+                            count += 1;
+                            context.strokeStyle = 'blue';
+                            context.lineWidth = 2;
+                            context.strokeRect(x, y, width, height);
+
+
+                            context.fillStyle = 'blue';
+                            context.font = '30px Arial';
+                            context.fillText(classLabel, x, y - 10);
+                        }
+                    }
+                }
+            }
+        } finally {
+            await endpoint.disconnect();
+        }
     
         const img = new Image()
         img.src = modifiedImageURL

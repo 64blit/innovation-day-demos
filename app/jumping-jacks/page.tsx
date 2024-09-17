@@ -1,7 +1,10 @@
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const JumpingJacksDemo = dynamic(() => import('@/components/JumpingJacksDemo'), { ssr: false })
+const JumpingJacksDemo = dynamic(
+  () => import("@/components/JumpingJacksDemo"),
+  { ssr: false },
+);
 
 export default function Page() {
-  return <JumpingJacksDemo />
+  return <JumpingJacksDemo />;
 }
