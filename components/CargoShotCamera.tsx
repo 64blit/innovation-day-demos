@@ -2,10 +2,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { MoonLoader } from 'react-spinners';
-import CameraIcon from './CameraIcon';
+import CameraIcon from './ui/CameraIcon';
 import { Button } from './ui/button';
-import HelpIcon from './HelpIcon';
-import FlashIcon from './FlashIcon';
+import HelpIcon from './ui/HelpIcon';
+import FlashIcon from './ui/FlashIcon';
 
 interface CargoShotCameraProps {
   goBackToInstructions: () => void;
@@ -55,26 +55,15 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
       setIsLoading(true);
       try {
 
-        const imageDataURL = canvasRef.current.toDataURL('image/png');
-        const response = await fetch('/api/cargoshot', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ image: imageDataURL, desiredObjects: ['boxes','pallet'] }),
-        });
-
-        const data = await response.json()
-
-        const modifiedImageURL = data.modifiedImage;
-        const img = new Image();
-        img.src = modifiedImageURL;
+    
+        const img = new Image()
+        img.src = modifiedImageURL
         img.onload = () => {
           if (canvasRef.current) {
-            const context = canvasRef.current.getContext('2d');
+            const context = canvasRef.current.getContext('2d')
             if (context) {
-              context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-              context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+              context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+              context.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height)
             }
           }
         };
@@ -114,13 +103,13 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
         autoPlay
         muted
         playsInline
-        className={`w-full h-[100svh] object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
+        className={`w-full h-[100vh] object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
       ></video>
       <canvas
         ref={canvasRef}
         width={1080}
         height={1440}
-        className={`w-full h-[100svh] object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
+        className={`w-full h-[100vh] object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
       ></canvas>
       {!isLoading && !isLoaded && (
         <div className='flex flex-col items-center'>
@@ -138,12 +127,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions }: CargoShotCa
           >
             <CameraIcon />
           </button>
-          <button
-            onClick={uploadImage}
-            className="absolute bottom-8 left-3/4 transform bg-eyepop border-4 border-white rounded-full cursor-pointer p-4"
-          >
-            <FlashIcon />
-          </button>
+        
         </div>
       )}
     </div>
