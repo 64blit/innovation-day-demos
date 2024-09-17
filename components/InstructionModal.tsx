@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import Dots from "./Dots";
+import Dots from "./ui/Dots";
 
 interface StepDescription {
     headline: string;
@@ -36,7 +36,7 @@ const InstructionModal = ({ onModalClose, stepDescriptions }: InstructionModalPr
 
     return (
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
-            <DialogContent className="w-full h-full bg-white">
+            <DialogContent className="w-full h-full bg-white items-center flex h-full flex-col justify-center">
                 <DialogHeader>
                     <DialogDescription className="text-black">
                         <h1 className="text-3xl font-semibold mt-16">

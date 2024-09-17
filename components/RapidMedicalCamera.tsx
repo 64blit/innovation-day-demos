@@ -2,10 +2,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { MoonLoader } from 'react-spinners';
-import CameraIcon from './CameraIcon';
+import CameraIcon from './ui/CameraIcon';
 import { Button } from './ui/button';
-import HelpIcon from './HelpIcon';
-import FlashIcon from './FlashIcon';
+import HelpIcon from './ui/HelpIcon';
+import FlashIcon from './ui/FlashIcon';
 import Render2d from '@eyepop.ai/eyepop-render-2d';
 
 interface RapidMedicalCameraProps {

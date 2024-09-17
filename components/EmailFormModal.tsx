@@ -57,12 +57,12 @@ const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProp
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full h-full bg-white">
         <DialogHeader>
-          <DialogDescription className="text-black">
+          <DialogDescription className="text-black items-center flex h-full flex-col justify-center">
             <h1 className="text-3xl mt-16 mb-3 font-semibold">Welcome to the<br/>{title} demo</h1>
             <h1 className="text-xl my-4 font-bold">POWERED BY <a className="text-sky-700" href="https://eyepop.ai">EYEPOP.AI</a></h1>
             <p className="text-lg my-3">{description}</p>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6 text-left">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6 text-left w-full">
                 <FormField
                   control={form.control}
                   name="email"
