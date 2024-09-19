@@ -284,9 +284,9 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions, goToFailPage 
     <div className="relative w-screen h-[100svh]">
       {isLoaded && (
         <div className='absolute inset-0  flex flex-col items-center justify-center'>
-          <h1 className='text-4xl text-center font-bold text-white absolute top-10 left-1/2 transform -translate-x-1/2'>
+          <div className='text-4xl text-center font-bold text-white absolute top-10 left-1/2 transform -translate-x-1/2'>
             Analysis complete
-          </h1>
+          </div>
 
 
           {inCompliance && inCompliance > 0 ? (
@@ -383,7 +383,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions, goToFailPage 
         <>
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-50">
             <MoonLoader className="my-4" color="#34a4eb" size={50} />
-            <h1 className='text-white font-bold text-2xl mt-4'>Capturing...</h1>
+            <div className='text-white font-bold text-2xl mt-4'>Capturing...</div>
           </div>
         </>
       )}
@@ -402,7 +402,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions, goToFailPage 
       </div>
       {!isLoading && !isLoaded && (
         <div className='flex flex-col items-center'>
-          <h1 className='text-white font-bold absolute top-8 text-center text-xl p-4 drop-shadow-xl bg-black bg-opacity-50 w-[90vw] rounded-lg'>TIP<br />Center the front view of the boxes inside of the outline</h1>
+          <div className='text-white font-bold absolute top-8 text-center text-xl p-4 drop-shadow-xl bg-black bg-opacity-50 w-[90vw] rounded-lg'>TIP<br />Center the front view of the boxes inside of the outline</div>
           <div className='w-[90vw] h-[40vh] border-white border-4 border-dashed absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2' />
           <button
             onClick={goBackToInstructions}

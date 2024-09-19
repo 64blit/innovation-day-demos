@@ -9,6 +9,8 @@ import CargoShotCamera from "./CargoShotCamera"
 import ClientOnlyProps from "./ClientOnlyProps"
 import FailPage from "./FailPage"
 import { set } from "react-hook-form"
+import InventoryDemo from "@/app/inventory/page"
+import InventoryDemoCamera from "./InventoryDemoCamera"
 
 interface StepDescription
 {
@@ -91,16 +93,21 @@ export default function Demo({ title, description, stepDescriptions, desiredObje
           {isInstructionModalOpen &&
             <InstructionModal onModalClose={onInstructionModalClose} stepDescriptions={stepDescriptions} />}
 
+          {isFailPageOpen && <FailPage goToThankYouPage={goToThankYouPage} data={failPageData} />}
 
           {title === "CargoShot" && isCameraOpen &&
             <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} goToFailPage={gotToFailPage} />}
 
-          {isFailPageOpen && <FailPage goToThankYouPage={goToThankYouPage} data={failPageData} />}
 
           {title === "Rapid Medical" && isCameraOpen &&
             <RapidMedicalCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} gotToFailPage={gotToFailPage}
             />
           }
+
+          {title === "Inventory" && isCameraOpen &&
+            <InventoryDemoCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} gotToFailPage={gotToFailPage} />
+          }
+
           {isThankYouPageOpen && <ThankYouPage goBackToCamera={goBackToCamera} title={title} />}
 
 

@@ -43,14 +43,14 @@ export async function loadEyePopModules()
 loadEyePopModules()
 
 
-interface RapidMedicalCameraProps
+interface InventoryDemoCameraProps
 {
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
   gotToFailPage: (data?: FailPageData) => void;
 }
 
-const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailPage }: RapidMedicalCameraProps) =>
+const InventoryDemoCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailPage }: InventoryDemoCameraProps) =>
 {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -130,20 +130,20 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
       let canvasBlob = await fetch(imageDataURL);
       canvasBlob = await canvasBlob.blob() as any;
 
-      const RAPID_MEDICAL_POP_ID = '65a2e14afb3d4636a1d1d1e5c29d2bda'
-      const RAPID_MEDICAL_API_KEY = 'AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
-      const RAPID_MEDICAL_API_URL = 'https://web-api.staging.eyepop.xyz'
+      const COOLR_POPID = '65a2e14afb3d4636a1d1d1e5c29d2bda'
+      const COOLR_SECRET = 'AAGcsWj8N2PlKQl9c9ydz3QFZ0FBQUFBQm1mZDB5eDUwalNlYi12NWotd3hsVGJiMW1sVXF1dE9aOU9oSGVBOWtBQXoxZmNjUE5Nb1YzY3RROUdzbVUwUkZtcDhZcG5vSWROTzR1TU8ybGhZckx6RTgzYVZwMjZEREZjalZubnpYaUNMWVdBODg9'
+      const API_URL = 'https://web-api.staging.eyepop.xyz'
 
       let count = 0;
       const resultsArray = [];
 
       const endpoint = await EyePop.workerEndpoint({
         // auth: { session: data.session },
-        popId: RAPID_MEDICAL_POP_ID,
+        popId: COOLR_POPID,
         auth: {
-          secretKey: RAPID_MEDICAL_API_KEY,
+          secretKey: COOLR_SECRET,
         },
-        eyepopUrl: RAPID_MEDICAL_API_URL
+        eyepopUrl: API_URL
       }
       ).connect();
 
@@ -174,7 +174,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           {
             for (let object of result.objects)
             {
-              if (object.classLabel === 'ziploc-bag')
+              if (object.classLabel === 'can')
               {
                 count += 1;
                 object.classLabel = 'sample'
@@ -221,7 +221,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           {desiredObjectCount && desiredObjectCount > 0 ? (
             <>
               <span className="bg-[#0B0A33] rounded-full cursor-pointer p-2 text-white">
-                {desiredObjectCount === 1 ? `${desiredObjectCount} medical sample` : `${desiredObjectCount} medical samples`}
+                {desiredObjectCount === 1 ? `${desiredObjectCount} inventory items` : `${desiredObjectCount} inventory items`}
               </span>
               <Button
                 className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"
@@ -240,7 +240,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
                 </svg>
 
                 <span className='w-full mr-s2'>
-                  No medical samples
+                  No inventory detected
                 </span>
               </span>
 
@@ -249,9 +249,9 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
                 onClick={() =>
                 {
                   const failPageData = {
-                    header: 'No Samples? No Problem!',
+                    header: 'No Inventory? No Problem!',
                     subHeader: "Here's what to do next...",
-                    description: "You have been tasked with picking up medical sample bags from a local clinic's lockbox."
+                    description: "You have been tasked with tracking inventory."
                   } as FailPageData
 
                   gotToFailPage(failPageData)
@@ -304,4 +304,4 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
   );
 };
 
-export default RapidMedicalCamera;
+export default InventoryDemoCamera;

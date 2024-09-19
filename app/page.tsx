@@ -11,7 +11,7 @@ export default function Home()
   return (
     <Suspense fallback={<Loading />}>
       <div className="flex flex-col justify-center">
-        <h1 className="text-3xl text-center mt-16">Check out our demos!</h1>
+        <div className="text-3xl text-center mt-16">Check out our demos!</div>
         <Button
           asChild
           className="bg-blue-500 text-white p-4 rounded-lg mx-4 mb-4 mt-16 text-3xl h-12"
@@ -26,18 +26,11 @@ export default function Home()
           <Link href="/cargoshot">CargoShot</Link>
         </Button>
 
-        {/* <Button
-            asChild
-            className="bg-red-500 text-white p-4 rounded-lg m-4 text-3xl h-12"
-          >
-            <Link href="/jumping-jacks">Jumping Jacks</Link>
-          </Button> */}
-
         <Button
           asChild
-          className="bg-yellow-500 text-white p-4 rounded-lg m-4 text-3xl h-12"
+          className="bg-orange-600 text-white p-4 rounded-lg m-4 text-3xl h-12"
         >
-          <Link href="/inventory-manager">Inventory Manager</Link>
+          <Link href="/inventory">Inventory</Link>
         </Button>
       </div>
     </Suspense>

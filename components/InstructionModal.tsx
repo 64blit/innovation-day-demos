@@ -48,9 +48,9 @@ const InstructionModal = ({ onModalClose, stepDescriptions }: InstructionModalPr
             <DialogContent className="w-full h-full bg-white items-center flex h-full flex-col justify-center">
                 <DialogHeader>
                     <DialogDescription className="text-black flex flex-col h-full gap-6">
-                        <h1 className="text-4xl font-semibold mt-16">
+                        <div className="text-4xl font-semibold mt-16">
                             {stepDescriptions[ step ].headline}
-                        </h1>
+                        </div>
                         <p className="text-lg my-3">
                             {stepDescriptions[ step ].description}
                         </p>
