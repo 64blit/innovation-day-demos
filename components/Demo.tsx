@@ -24,6 +24,11 @@ interface DemoProps
   desiredObject: string;
   desiredObjectTitle: string;
 }
+export type FailPageData = {
+  header: string,
+  subHeader: string,
+  description: string,
+}
 
 export default function Demo({ title, description, stepDescriptions, desiredObject, desiredObjectTitle }: DemoProps)
 {
@@ -31,6 +36,7 @@ export default function Demo({ title, description, stepDescriptions, desiredObje
   const [ isInstructionModalOpen, setIsInstructionModalOpen ] = useState(false);
   const [ isThankYouPageOpen, setIsThankYouPageOpen ] = useState(false);
   const [ isFailPageOpen, setIsFailPageOpen ] = useState(false);
+  const [ failPageData, setFailPageData ] = useState<FailPageData | undefined>(undefined);
 
   const onEmailFormModalClose = () =>
   {
@@ -62,11 +68,16 @@ export default function Demo({ title, description, stepDescriptions, desiredObje
     setIsCameraOpen(true);
   }
 
-  const gotToFailPage = () =>
+  const gotToFailPage = (data?: FailPageData) =>
   {
     setIsCameraOpen(true);
     setIsThankYouPageOpen(false);
     setIsFailPageOpen(true);
+
+    if (data)
+    {
+      setFailPageData(data);
+    }
   }
 
   return (
@@ -82,9 +93,9 @@ export default function Demo({ title, description, stepDescriptions, desiredObje
 
 
           {title === "CargoShot" && isCameraOpen &&
-            <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} />}
+            <CargoShotCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} goToFailPage={gotToFailPage} />}
 
-          {isFailPageOpen && <FailPage goToThankYouPage={goToThankYouPage} />}
+          {isFailPageOpen && <FailPage goToThankYouPage={goToThankYouPage} data={failPageData} />}
 
           {title === "Rapid Medical" && isCameraOpen &&
             <RapidMedicalCamera goBackToInstructions={goBackToInstructions} goToThankYouPage={goToThankYouPage} gotToFailPage={gotToFailPage}

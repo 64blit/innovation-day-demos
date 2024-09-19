@@ -5,6 +5,8 @@ import { MoonLoader } from 'react-spinners';
 import CameraIcon from './ui/CameraIcon';
 import { Button } from './ui/button';
 import HelpIcon from './ui/HelpIcon';
+import { Description } from '@radix-ui/react-dialog';
+import { FailPageData } from './Demo';
 
 let Render2d: any = null
 let EyePop: any = null
@@ -45,7 +47,7 @@ interface RapidMedicalCameraProps
 {
   goBackToInstructions: () => void;
   goToThankYouPage: () => void;
-  gotToFailPage: () => void;
+  gotToFailPage: (data?: FailPageData) => void;
 }
 
 const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailPage }: RapidMedicalCameraProps) =>
@@ -111,10 +113,6 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
     canvasRef.current.width = videoRef.current.videoWidth;
     canvasRef.current.height = videoRef.current.videoHeight;
 
-    // Set the canvas CSS size to match the video dimensions
-    canvasRef.current.style.width = videoRef.current.videoWidth + 'px';
-    canvasRef.current.style.height = videoRef.current.videoHeight + 'px';
-
     const context = canvasRef.current.getContext('2d');
 
     if (!context) return
@@ -158,8 +156,7 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           mimeType: 'image/*',
         });
 
-        //change the context to render 
-
+        //change the context to render
 
         context.font = 'bold 10rem Arial'
         const renderer = Render2d.renderer(context as CanvasRenderingContext2D)
@@ -235,10 +232,15 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
             </>
           ) : (
             <>
-              <span className="bg-[#0B0A33] rounded-full cursor-pointer p-2 text-white border-red-600 border flex justify-center text-center align-middle items-center">
-                <span className="text-lg mr-3 ml-2">✕</span>
+              <span className=" rounded-full cursor-pointer p-2 text-white bg-red-700  flex justify-center text-center align-middle items-center">
+                
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className='mr-1' xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" />
+                  <line x1="5" y1="5" x2="19" y2="19" stroke="white" strokeWidth="2" />
+                </svg>
+
                 <span className='w-full mr-s2'>
-                  No Medical Samples
+                  No medical samples
                 </span>
               </span>
 
@@ -246,7 +248,13 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
                 className="bg-eyepop w-[90vw] border-white border font-bold text-md h-12 absolute bottom-10 left-1/2 transform -translate-x-1/2"
                 onClick={() =>
                 {
-                  gotToFailPage()
+                  const failPageData = {
+                    header: 'No Samples? No Problem!',
+                    subHeader: "Here's what to do next...",
+                    description: "You have been tasked with picking up medical sample bags from a local clinic's lockbox."
+                  } as FailPageData
+
+                  gotToFailPage(failPageData)
                   setIsLoaded(false)
                 }}
               >
@@ -254,9 +262,6 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
               </Button>
             </>
           )}
-
-
-
         </div>
       )}
 
@@ -272,11 +277,11 @@ const RapidMedicalCamera = ({ goToThankYouPage, goBackToInstructions, gotToFailP
           autoPlay
           muted
           playsInline
-          className={`object-cover ${isLoading || isLoaded ? 'hidden' : ''}`}
+          className={`object-cover w-full h-full ${isLoading || isLoaded ? 'hidden' : ''}`}
         ></video>
         <canvas
           ref={canvasRef}
-          className={`max-w-full max-h-full object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
+          className={`w-full h-full object-cover ${isLoaded || isLoading ? '' : 'hidden'}`}
         ></canvas>
       </div>
       {!isLoading && !isLoaded && (

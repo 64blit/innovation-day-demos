@@ -11,7 +11,7 @@ interface ThankYouPageProps
 const ThankYouPage = ({ goBackToCamera, title }: ThankYouPageProps) =>
 {
   return (
-    <div className="text-center p-4 flex flex-col justify-center items-center h-full bg-black text-white">
+    <div className="text-center p-4 flex flex-col justify-center items-center h-full bg-white text-black">
       <h1 className="text-4xl  mb-3 font-semibold">Thank you!</h1>
       <p className="text-lg my-4">Have questions for {title} or <a className="text-sky-700" href="https://eyepop.ai">EyePop.ai</a>?
         {` We'd`} love to hear from you.</p>

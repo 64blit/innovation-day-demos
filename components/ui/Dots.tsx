@@ -7,7 +7,7 @@ export default function Dots({ step }: { step: number })
             {[ 0, 1, 2 ].map((dotIndex) => (
                 <div
                     key={dotIndex}
-                    className={`w-4 h-4 rounded-full ${step === dotIndex ? 'bg-gray-500' : 'bg-gray-300'}`}
+                    className={`w-4 h-4 rounded-full border border-gray-500 ${step === dotIndex ? 'bg-gray-500' : 'bg-transparent '}`}
                 />
             ))}
         </div>

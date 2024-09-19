@@ -64,10 +64,10 @@ const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProp
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full h-full bg-black flex flex-col justify-center">
+      <DialogContent className="w-full h-full bg-white flex flex-col justify-center">
         <DialogHeader>
           <DialogDescription className="text-black items-center flex h-full flex-col justify-center">
-            <h1 className="text-3xl mt-16 mb-3 font-semibold">Welcome to the<br/>{title} demo</h1>
+            <h1 className="text-3xl mt-16 mb-3 font-semibold">Welcome to the<br />{title} demo</h1>
             <h1 className="text-xl my-4 font-bold">POWERED BY <a className="text-sky-700" href="https://eyepop.ai">EYEPOP.AI</a></h1>
             <p className="text-lg my-3">{description}</p>
             <Form {...form}>
@@ -90,7 +90,7 @@ const EmailFormModal = ({ onModalClose, title, description }: EmailFormModalProp
               </form>
             </Form>
             <DialogClose asChild className="w-full h-12 mt-4">
-              <Button type="button" variant="secondary" className="bg-transparent text-white">
+              <Button type="button" variant="secondary" className="bg-transparent text-white bg-gray-400">
                 Skip
               </Button>
             </DialogClose>
