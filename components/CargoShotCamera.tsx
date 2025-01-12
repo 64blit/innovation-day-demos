@@ -353,7 +353,7 @@ const CargoShotCamera = ({ goToThankYouPage, goBackToInstructions, goToFailPage 
                     </svg>
 
                     <span className='w-full mr-s2'>
-                      {inCompliance} cargo out of compliance
+                      Cargo out of compliance
                     </span>
                   </span>
 
